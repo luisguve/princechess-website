@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Prince chess!</title>
+  <link rel="stylesheet" type="text/css" href="css/chessboard-1.0.0.css">
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <link rel="stylesheet" type="text/css" media="screen" href="bootstrap3/css/bootstrap.min.css" />
+
+  <script src="jquery/jquery-3.5.1.js"></script>
+  <script src="bootstrap3/js/bootstrap.min.js"></script>
+  <script src="js/prince-chess.js"></script>
+  <script src="js/prince-chessboard-1.0.0.js"></script>
+  <!--<script src="js/lozuilib.js"></script>
+  <script src="js/play.js"></script>
+  <script src="lozza.js"></script>-->
+</head>
+<body>
+  <div class="container">
+    <h1>Welcome</h1>
+    <div class="btn-group">
+      <button type="button" class="btn btn-primary">Play</button>
+      <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <span class="caret"></span>
+        <span class="sr-only">Toggle Dropdown</span>
+      </button>
+      <ul class="dropdown-menu">
+        <li><a id="playw" href="#">With white pieces</a></li>
+        <li><a id="playb" href="#">With black pieces</a></li>
+      </ul>
+    </div>
+
+    <div class="btn-group">
+      <button id="strength" type="button" class="btn btn-primary">Strength</button>
+      <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <span class="caret"></span>
+        <span class="sr-only">Toggle Dropdown</span>
+      </button>
+      <ul class="dropdown-menu">
+        <li><a id="level1"  href="#">Level 1</a></li>
+        <li><a id="level2"  href="#">Level 2</a></li>
+        <li><a id="level3"  href="#">Level 3</a></li>
+        <li><a id="level4"  href="#">Level 4</a></li>
+        <li class="divider"></li>
+        <li><a id="level5"  href="#">Level 5</a></li>
+        <li><a id="level6"  href="#">Level 6</a></li>
+        <li><a id="level7"  href="#">Level 7</a></li>
+        <li><a id="level8"  href="#">Level 8</a></li>
+        <li class="divider"></li>
+        <li><a id="level9"  href="#">Level 9</a></li>
+        <li><a id="level10" href="#">Beth</a></li>
+      </ul>
+    </div>
+
+    <div class="board-container">
+      <div id="board" style="width: 500px"></div>
+      <p id="status"></p>
+      <p id="fen"></p>
+      <p id="pgn"></p>
+    </div>
+
+  </div>
+  
+  <script type="text/javascript" src="js/main.js"></script>
+</body>
+</html>
