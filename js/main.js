@@ -78,8 +78,13 @@ function updateStatus () {
   }
 
   $status.html(status)
-  $fen.html(game.fen())
-  $pgn.html(game.pgn())
+  // $fen.html(game.fen())
+  var pgnResult = game.pgn()
+      .split(/\d+\./)
+      .slice(1)
+      .map(step => `<li>${step}</li>`)
+      .reduce((res, step) => { return res += step }, "")
+  $pgn.html(`<ol>${pgnResult}</ol>`)
 }
 
 var config = {
