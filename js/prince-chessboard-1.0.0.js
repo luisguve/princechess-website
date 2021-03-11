@@ -346,8 +346,11 @@
       // loop through each character in the FEN section
       for (var j = 0; j < row.length; j++) {
         // number / empty squares
-        if (row[j].search(/[1-10]/) !== -1) {
+        if (row[j].search(/[0-9]/) !== -1) {
           var numEmptySquares = parseInt(row[j], 10)
+          if (numEmptySquares === 0) {
+            numEmptySquares = 9
+          }
           colIdx = colIdx + numEmptySquares
         } else {
           // piece
