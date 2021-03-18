@@ -1,15 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Prince chess!</title>
+  <title>Play Prince Chess</title>
   <link rel="stylesheet" type="text/css" href="css/chessboard-1.0.0.css">
   <link rel="stylesheet" type="text/css" href="css/style.css">
-  <link rel="stylesheet" type="text/css" media="screen" href="bootstrap3/css/bootstrap.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
 
   <script src="jquery/jquery-3.5.1.js"></script>
   <script src="bootstrap3/js/bootstrap.min.js"></script>
-  <!-- <script src="chess/chess.js"></script>
-    <script src="chess/chessboard-1.0.0.js"></script> -->
   <script src="js/prince-chess.js"></script>
   <script src="js/prince-chessboard-1.0.0.js"></script>
   <script src="js/dummy-engine.js"></script>
@@ -19,54 +17,63 @@
 </head>
 <body>
   <div class="container">
-    <h1>Welcome</h1>
-    <div class="btn-group">
-      <button type="button" class="btn btn-primary" id="start">Play</button>
-      <!--
-      <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <span class="caret"></span>
-        <span class="sr-only">Toggle Dropdown</span>
-      </button>
-      <ul class="dropdown-menu">
-        <li><a id="playw" href="#">With white pieces</a></li>
-        <li><a id="playb" href="#">With black pieces</a></li>
-      </ul>
-      -->
+    <h1 class="mb-md-5">Welcome to Prince Chess</h1>
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-xl-8">
+        <div class="d-flex justify-content-between">
+          <div>
+            <div class="btn-group">
+              <button type="button" class="btn btn-primary" id="start">Play</button>
+              <!--
+              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only">Toggle Dropdown</span>
+              </button>
+              <ul class="dropdown-menu">
+                <li><a id="playw" href="#">With white pieces</a></li>
+                <li><a id="playb" href="#">With black pieces</a></li>
+              </ul>
+              -->
+            </div>
+            <div class="btn-group">
+              <button id="strength" type="button" class="btn btn-primary">Strength</button>
+              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu">
+                <li><a id="level1"  href="#">Level 1</a></li>
+                <li><a id="level2"  href="#">Level 2</a></li>
+                <li><a id="level3"  href="#">Level 3</a></li>
+                <!--
+                <li><a id="level4"  href="#">Level 4</a></li>
+                <li class="divider"></li>
+                <li><a id="level5"  href="#">Level 5</a></li>
+                <li><a id="level6"  href="#">Level 6</a></li>
+                <li><a id="level7"  href="#">Level 7</a></li>
+                <li><a id="level8"  href="#">Level 8</a></li>
+                <li class="divider"></li>
+                <li><a id="level9"  href="#">Level 9</a></li>
+                <li><a id="level10" href="#">Beth</a></li>
+                -->
+              </ul>
+            </div>
+          </div>
+          <h3 id="status"></h3>
+        </div>
+        <div class="row flex-column align-items-center mt-2">
+          <div class="col">
+            <div id="board"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2 col-xl-4 mt-5">
+        <div id="fen"></div>
+        <p id="pgn"></p>
+      </div>
     </div>
-
-    <div class="btn-group">
-      <button id="strength" type="button" class="btn btn-primary">Strength</button>
-      <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <span class="caret"></span>
-        <span class="sr-only">Toggle Dropdown</span>
-      </button>
-      <ul class="dropdown-menu">
-        <li><a id="level1"  href="#">Level 1</a></li>
-        <li><a id="level2"  href="#">Level 2</a></li>
-        <li><a id="level3"  href="#">Level 3</a></li>
-        <!--
-        <li><a id="level4"  href="#">Level 4</a></li>
-        <li class="divider"></li>
-        <li><a id="level5"  href="#">Level 5</a></li>
-        <li><a id="level6"  href="#">Level 6</a></li>
-        <li><a id="level7"  href="#">Level 7</a></li>
-        <li><a id="level8"  href="#">Level 8</a></li>
-        <li class="divider"></li>
-        <li><a id="level9"  href="#">Level 9</a></li>
-        <li><a id="level10" href="#">Beth</a></li>
-        -->
-      </ul>
-    </div>
-
-    <div class="board-container">
-      <div id="board" style="width: 500px"></div>
-      <p id="status"></p>
-      <div id="fen"></div>
-      <p id="pgn"></p>
-    </div>
-
   </div>
   
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
   <script type="text/javascript" src="js/main.js"></script>
 </body>
 </html>
