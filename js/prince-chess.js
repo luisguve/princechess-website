@@ -859,7 +859,6 @@ var Chess = function(fen) {
 
       var piece = board[i]
       if (piece !== null && piece.type === PRINCE && piece.color !== BLACK) {
-        console.log(piece, piece.type, piece.color)
         return true
       }
     }

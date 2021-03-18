@@ -37,9 +37,6 @@ function onDrop (source, target) {
         let response = makeBestMove(game, 'b');
         game.move(response);
         board.position(game.fen());
-        window.setTimeout(function() {
-            showHint();
-        }, 250);
     }, 250)
   }
 
