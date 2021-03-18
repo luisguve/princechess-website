@@ -6,6 +6,42 @@ var game = new Chess()
 var $status = $('#status')
 var $fen = $('#fen')
 var $pgn = $('#pgn')
+var $start = $('#start')
+var $strength = $('#strength')
+
+$start.click(restart)
+
+$strength.html(`Strength (${level})`);
+
+$('#level1').click(() => {
+  level = 1;
+  $strength.html('Strength (1)');
+  restart()
+  return true;
+});
+$('#level2').click(() => {
+  level = 2;
+  $strength.html('Strength (2)');
+  restart()
+  return true;
+});
+
+$('#level3').click(() => {
+  level = 3;
+  $strength.html('Strength (3)');
+  restart()
+  return true;
+});
+
+function restart() {
+  game.reset();
+  globalSum = 0;
+  board.position(game.fen());
+  updateStatus();
+  if ($start.html() === 'Restart')
+    $start.html("Play");
+  return true
+}
 
 function onDragStart (source, piece, position, orientation) {
   // do not pick up pieces if the game is over
@@ -33,14 +69,17 @@ function onDrop (source, target) {
 
   if (!game.game_over()) {
     // Make the best move for black
-    window.setTimeout(function() {
-        let response = makeBestMove(game, 'b');
-        game.move(response);
-        board.position(game.fen());
+    window.setTimeout(() => {
+      let response = makeBestMove(game, 'b');
+      game.move(response);
+      board.position(game.fen());
+      updateStatus();
     }, 250)
   }
 
   updateStatus()
+  if ($start.html() === 'Play')
+    $start.html("Restart");
 }
 
 // update the board position after the piece snap
