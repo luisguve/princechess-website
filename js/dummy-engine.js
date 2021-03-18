@@ -1,4 +1,5 @@
-var globalSum = 0   
+var globalSum = 0
+var level = 3
 
 timer = null;
 
@@ -288,11 +289,9 @@ function minimax(game, depth, alpha, beta, isMaximizingPlayer, sum, color)
 function getBestMove (game, color, currSum) {
 
   positionCount = 0;
-  
-  var depth = 3;
 
   var d = new Date().getTime();
-  var [bestMove, bestMoveValue] = minimax(game, depth, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, true, currSum, color);
+  var [bestMove, bestMoveValue] = minimax(game, level, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, true, currSum, color);
   var d2 = new Date().getTime();
   var moveTime = (d2 - d);
   var positionsPerS = (positionCount * 1000 / moveTime);
