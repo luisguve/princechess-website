@@ -29,6 +29,20 @@ function onDrop (source, target) {
   // illegal move
   if (move === null) return 'snapback'
 
+  globalSum = evaluateBoard(move, globalSum, 'b');
+
+  if (!game.game_over()) {
+    // Make the best move for black
+    window.setTimeout(function() {
+        let response = makeBestMove(game, 'b');
+        game.move(response);
+        board.position(game.fen());
+        window.setTimeout(function() {
+            showHint();
+        }, 250);
+    }, 250)
+  }
+
   updateStatus()
 }
 
