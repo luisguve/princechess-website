@@ -531,6 +531,9 @@ var Chess = function(fen) {
       move.promotion = promotion
     }
 
+    if (flags & BITS.C_PROMOTION)
+      move.c_promoted = true
+
     if (board[to]) {
       move.captured = board[to].type
     } else if (flags & BITS.EP_CAPTURE) {
@@ -624,18 +627,36 @@ var Chess = function(fen) {
 
           while (true) {
             square += offset
-            if (square & 0x110) break
+            let coord = algebraic(square)
+            if ((square & 0x110) || (SQUARES[coord] === undefined)) break
 
+            let flags = BITS.NORMAL;
             if (board[square] == null) {
-              add_move(board, moves, i, square, BITS.NORMAL)
+              if (piece.type === 'c') {
+                if (
+                  (us === WHITE && rank(square) === RANK_8) ||
+                  (us === BLACK && rank(square) === RANK_1)
+                )
+                  flags |= BITS.C_PROMOTION
+              }
+              add_move(board, moves, i, square, flags)
             } else {
               if (board[square].color === us) break
-              add_move(board, moves, i, square, BITS.CAPTURE)
+              flags = BITS.CAPTURE
+              if (piece.type === 'c') {
+                if (
+                  (us === WHITE && rank(square) === RANK_8) ||
+                  (us === BLACK && rank(square) === RANK_1)
+                )
+                  flags |= BITS.C_PROMOTION
+              }
+              add_move(board, moves, i, square, flags)
               break
             }
 
             /* break, if knight, king or prince */
-            if (piece.type === 'n' || piece.type === 'k' || piece.type === 'c') break
+            if (piece.type === 'n' || piece.type === 'k' || piece.type === 'c')
+              break
           }
         }
       }
@@ -1390,6 +1411,10 @@ var Chess = function(fen) {
       return moves
     },
 
+    ugly_moves: function(options) {
+      return generate_moves(options);
+    },
+
     in_check: function() {
       return in_check()
     },
@@ -1876,6 +1901,13 @@ var Chess = function(fen) {
       make_move(move_obj)
 
       return pretty_move
+    },
+
+    ugly_move: function(move_obj) {
+      var pretty_move = make_pretty(move_obj);
+      make_move(move_obj);
+
+      return pretty_move;
     },
 
     undo: function() {
