@@ -132,9 +132,26 @@ function updateStatus () {
   var pgnResult = game.pgn()
       .split(/\d+\./)
       .slice(1)
-      .map(step => `<li>${step}</li>`)
-      .reduce((res, step) => { return res += step }, "")
-  $pgn.html(`<ol>${pgnResult}</ol>`)
+      .map((steps, idx) => {
+        let history = steps.trim().split(/\s/).reduce((res, step) => {
+          return res + `<td>${step}</td>`
+        }, "")
+        return `
+          <tr>
+            <th scope="row">${idx + 1}</th>
+            ${history}
+          </tr>`
+      })
+      .reduce((res, steps) => { return res + steps }, `<table class="table">
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th scope="col">White</th>
+            <th scope="col">Black</th>
+          </tr>
+        </thead>
+        <tbody>`) + "</tbody>"
+  $pgn.html(pgnResult)
 }
 
 var config = {
