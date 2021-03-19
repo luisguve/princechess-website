@@ -26,3 +26,26 @@ h1 {
 #board:hover {
 	cursor: pointer;
 }
+
+tbody {
+    display: block;
+    height: 540px;
+    overflow: auto;
+}
+
+thead, tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;/* even columns width , fix width of table too*/
+}
+
+main p {
+	font-size: 20px;
+	line-height: 1.2;
+}
+
+main li {
+	font-size: 20px;
+	line-height: 1.2;
+	margin-bottom: 15px;
+}
