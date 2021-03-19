@@ -133,19 +133,25 @@ function updateStatus () {
       .split(/\d+\./)
       .slice(1)
       .map((steps, idx) => {
-        let history = steps.trim().split(/\s/).reduce((res, step) => {
-          return res + `<td>${step}</td>`
+        let history = steps.trim().split(/\s/)
+        let colspan = 1
+        if (history.length === 1) {
+          colspan = 2
+        }
+        history = history.reduce((res, step, idx, arr) => {
+          return res + `<td colspan="${colspan}">${step}</td>`
         }, "")
         return `
           <tr>
-            <th scope="row">${idx + 1}</th>
+            <th scope="row" class="w-25">${idx + 1}</th>
             ${history}
           </tr>`
       })
-      .reduce((res, steps) => { return res + steps }, `<table class="table">
+      .reduce((res, steps) => { return res + steps }, `
+        <table class="table table-striped">
         <thead>
           <tr>
-            <th scope="col"></th>
+            <th scope="col" class="w-25"></th>
             <th scope="col">White</th>
             <th scope="col">Black</th>
           </tr>
