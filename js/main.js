@@ -47,6 +47,7 @@ $('#10min').click(() => {
 });
 
 function play(min) {
+  $('#loader').addClass("loader")
   const url = `http://localhost:8000/play?clock=${min}`;
   fetch(url, {'credentials': 'include'})
   .then(response => {

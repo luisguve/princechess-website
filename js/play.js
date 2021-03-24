@@ -84,18 +84,19 @@ $('#10min').click(() => {
 });
 
 function play(min) {
-  const url = `http:localhost:8000/play?clock=${min}`;
-  fetch(url)
+  $('#loader').addClass("loader")
+  const url = `http://localhost:8000/play?clock=${min}`;
+  fetch(url, {'credentials': 'include'})
   .then(response => {
     if (!response.ok) {
       $('#play-error').html("Could not reach server");
-    } else {
-      response.json();
+      return
     }
+    return response.json();
   })
-  .then(link => {
+  .then(res => {
     // redirect to play room
-    document.location.href = link;
+    document.location.href = `/play.html?id=${res.roomId}&color=${res.color}`;
   });
 }
 
