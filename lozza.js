@@ -389,6 +389,7 @@ var QUEEN  = 5;
 var KING   = 6;
 var EDGE   = 7;
 var NO_Z   = 8;
+var PRINCE = 16;
 
 var W_PAWN   = PAWN;
 var W_KNIGHT = KNIGHT;
@@ -396,6 +397,7 @@ var W_BISHOP = BISHOP;
 var W_ROOK   = ROOK;
 var W_QUEEN  = QUEEN;
 var W_KING   = KING;
+var W_PRINCE = PRINCE;
 
 var B_PAWN   = PAWN   | BLACK;
 var B_KNIGHT = KNIGHT | BLACK;
@@ -403,6 +405,7 @@ var B_BISHOP = BISHOP | BLACK;
 var B_ROOK   = ROOK   | BLACK;
 var B_QUEEN  = QUEEN  | BLACK;
 var B_KING   = KING   | BLACK;
+var B_PRINCE = PRINCE | BLACK;
 
 //
 // E == EMPTY, X = OFF BOARD, - == CANNOT HAPPEN
