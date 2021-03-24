@@ -24,6 +24,23 @@
     <h1 class="mb-md-5 mt-3">Welcome to Prince Chess</h1>
     <div class="row justify-content-center">
       <div class="col-xl-8">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="btn-group" role="group">
+            <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              Play online
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" id="3min" href="#">3 min</a></li>
+              <li><a class="dropdown-item" id="5min" href="#">5 min</a></li>
+              <li><a class="dropdown-item" id="10min" href="#">10 min</a></li>
+            </ul>
+          </div>
+          <p id="play-error"></p>
+          <div class="users-n-games d-flex flex-column">
+            <p class="m-0">0 players online</p>
+            <p class="m-0">0 games ongoing</p>
+          </div>
+        </div>
         <div class="d-flex justify-content-between">
           <div>
             <div class="btn-group">
@@ -40,14 +57,13 @@
               -->
             </div>
             <div class="btn-group">
-              <button id="strength" type="button" class="btn btn-primary">Strength</button>
-              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="caret"></span>
+              <button id="btnGroupDrop2" type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Strength
               </button>
               <ul class="dropdown-menu">
-                <li><a id="level1"  href="#">Level 1</a></li>
-                <li><a id="level2"  href="#">Level 2</a></li>
-                <li><a id="level3"  href="#">Level 3</a></li>
+                <li><a class="dropdown-item" id="level1"  href="#">Level 1</a></li>
+                <li><a class="dropdown-item" id="level2"  href="#">Level 2</a></li>
+                <li><a class="dropdown-item" id="level3"  href="#">Level 3</a></li>
               </ul>
             </div>
           </div>
