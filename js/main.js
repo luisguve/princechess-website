@@ -8,6 +8,7 @@ var $fen = $('#fen')
 var $pgn = $('#pgn')
 var $start = $('#start')
 var $strength = $('#strength')
+var level = 3
 
 $start.click(restart)
 
