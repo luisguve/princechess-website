@@ -33,6 +33,34 @@ $('#level3').click(() => {
   return true;
 });
 
+$('#3min').click(() => {
+  play(3);
+});
+
+$('#5min').click(() => {
+  play(5);
+});
+
+$('#10min').click(() => {
+  play(10);
+});
+
+function play(min) {
+  const url = `http://localhost:8000/play?clock=${min}`;
+  fetch(url, {'credentials': 'include'})
+  .then(response => {
+    if (!response.ok) {
+      $('#play-error').html("Could not reach server");
+      return
+    }
+    return response.json();
+  })
+  .then(res => {
+    // redirect to play room
+    document.location.href = `/play.html?id=${res.roomId}&color=${res.color}`;
+  });
+}
+
 function restart() {
   game.reset();
   globalSum = 0;
