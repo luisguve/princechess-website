@@ -31,10 +31,27 @@ function getUrlParameter(sParam) {
   return false;
 }
 
+function capitalize(word) {
+  return word[0].toUpperCase() + word.slice(1);
+}
+
 if (window["WebSocket"]) {
   conn = new WebSocket(`ws://localhost:8000/game?id=${gameId}`);
+  conn.onerror = function (evt) {
+    // appendLog("Could not connect.");
+  };
   conn.onclose = function (evt) {
-    appendLog("Connection closed.");
+    switch (evt.code) {
+    case 1006:
+      appendLog("Game not found");
+      break;
+    case 1001:
+      appendLog(`Game over: opponent left. ${capitalize(color)} wins`);
+      break;
+    case 1000:
+      appendLog("Connection closed.");
+      break;
+    }
   };
   conn.onmessage = function (evt) {
     let move = game.move(JSON.parse(evt.data));
@@ -54,7 +71,7 @@ if (window["WebSocket"]) {
 
 function appendLog(content) {
   let item = document.createElement("b");
-  item.innerHTML = content;
+  item.innerHTML = `${content}<br >`;
   log.appendChild(item);
 }
 
