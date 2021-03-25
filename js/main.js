@@ -51,6 +51,7 @@ $('#10min').click(() => {
 
 function play(min) {
   $loader.addClass("loader")
+  emptyLog()
   const url = `http://localhost:8000/play?clock=${min}`;
   fetch(url, {'credentials': 'include'})
   .then(response => {
@@ -76,6 +77,12 @@ function appendLog(content) {
   let item = document.createElement("b");
   item.innerHTML = content;
   log.appendChild(item);
+}
+
+function emptyLog() {
+  while (log.firstChild) {
+    log.firstChild.remove()
+  }
 }
 
 function restart() {

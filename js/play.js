@@ -58,6 +58,12 @@ function appendLog(content) {
   log.appendChild(item);
 }
 
+function emptyLog() {
+  while (log.firstChild) {
+    log.firstChild.remove()
+  }
+}
+
 $('#3min').click(() => {
   if (!finished) {
     alert("You are in the middle of a game")
@@ -84,6 +90,7 @@ $('#10min').click(() => {
 
 function play(min) {
   $loader.addClass("loader");
+  emptyLog();
   const url = `http://localhost:8000/play?clock=${min}`;
   fetch(url, {'credentials': 'include'})
   .then(response => {
