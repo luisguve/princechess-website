@@ -11,8 +11,9 @@ var $pgn = $('#pgn')
 var finished = true
 var gameId = getUrlParameter("id")
 var color = getUrlParameter("color")
+var $loader = $('#loader')
 
-var log = document.getElementById("log");
+var $log = $("#log");
 
 function getUrlParameter(sParam) {
   var sPageURL = window.location.search.substring(1),
@@ -33,18 +34,14 @@ function getUrlParameter(sParam) {
 if (window["WebSocket"]) {
   conn = new WebSocket(`ws://localhost:8000/game?id=${gameId}`);
   conn.onclose = function (evt) {
-    let item = document.createElement("b");
-    item.innerHTML = "Connection closed.";
-    appendLog(item);
+    appendLog("Connection closed.");
   };
   conn.onmessage = function (evt) {
     let move = game.move(JSON.parse(evt.data));
 
     // see if the move is legal
     if (move === null) {
-      let item = document.createElement("b");
-      item.innerHTML = `Error: illegal move: ${evt.data}`;
-      appendLog(item);
+      appendLog(`Error: illegal move: ${evt.data}`);
       return;
     }
 
@@ -55,7 +52,9 @@ if (window["WebSocket"]) {
   alert("Your browser does not support WebSockets.");
 }
 
-function appendLog(item) {
+function appendLog(content) {
+  let item = document.createElement("b");
+  item.innerHTML = content;
   log.appendChild(item);
 }
 
@@ -84,17 +83,23 @@ $('#10min').click(() => {
 });
 
 function play(min) {
-  $('#loader').addClass("loader")
+  $loader.addClass("loader");
   const url = `http://localhost:8000/play?clock=${min}`;
   fetch(url, {'credentials': 'include'})
   .then(response => {
     if (!response.ok) {
-      $('#play-error').html("Could not reach server");
+      $loader.removeClass("loader");
+      appendLog("Could not reach server");
       return
     }
     return response.json();
   })
   .then(res => {
+    if (!res.roomId) {
+      $loader.removeClass("loader");
+      appendLog("Could not find an opponent");
+      return;
+    }
     // redirect to play room
     document.location.href = `/play.html?id=${res.roomId}&color=${res.color}`;
   });

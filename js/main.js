@@ -9,8 +9,11 @@ var $pgn = $('#pgn')
 var $start = $('#start')
 var $strength = $('#strength')
 var level = 3
+var $loader = $('#loader')
 
-$start.click(restart)
+var $log = $("#log");
+
+$start.click(restart);
 
 $strength.html(`Strength (${level})`);
 
@@ -47,20 +50,32 @@ $('#10min').click(() => {
 });
 
 function play(min) {
-  $('#loader').addClass("loader")
+  $loader.addClass("loader")
   const url = `http://localhost:8000/play?clock=${min}`;
   fetch(url, {'credentials': 'include'})
   .then(response => {
     if (!response.ok) {
-      $('#play-error').html("Could not reach server");
+      $loader.removeClass("loader");
+      appendLog("Could not reach server");
       return
     }
     return response.json();
   })
   .then(res => {
+    if (!res.roomId) {
+      $loader.removeClass("loader");
+      appendLog("Could not find an opponent");
+      return
+    }
     // redirect to play room
     document.location.href = `/play.html?id=${res.roomId}&color=${res.color}`;
   });
+}
+
+function appendLog(content) {
+  let item = document.createElement("b");
+  item.innerHTML = content;
+  log.appendChild(item);
 }
 
 function restart() {
@@ -178,7 +193,7 @@ function updateStatus () {
           </tr>`
       })
       .reduce((res, steps) => { return res + steps }, `
-        <table class="table table-striped">
+        <table class="table table-striped mb-0">
         <thead>
           <tr>
             <th scope="col" class="w-25"></th>
