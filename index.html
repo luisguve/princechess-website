@@ -30,12 +30,12 @@
               Play online
             </button>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" id="3min" href="#">3 min</a></li>
-              <li><a class="dropdown-item" id="5min" href="#">5 min</a></li>
-              <li><a class="dropdown-item" id="10min" href="#">10 min</a></li>
+              <li><button class="dropdown-item" id="3min" href="#">3 min</button></li>
+              <li><button class="dropdown-item" id="5min" href="#">5 min</button></li>
+              <li><button class="dropdown-item" id="10min" href="#">10 min</button></li>
             </ul>
           </div>
-          <p id="play-error"></p>
+          <h2 id="log"></h2>
           <div id="loader"></div>
           <div class="users-n-games d-flex flex-column">
             <p class="m-0">0 players online</p>
@@ -62,9 +62,9 @@
                 Strength
               </button>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" id="level1"  href="#">Level 1</a></li>
-                <li><a class="dropdown-item" id="level2"  href="#">Level 2</a></li>
-                <li><a class="dropdown-item" id="level3"  href="#">Level 3</a></li>
+                <li><button class="dropdown-item" id="level1"  href="#">Level 1</button></li>
+                <li><button class="dropdown-item" id="level2"  href="#">Level 2</button></li>
+                <li><button class="dropdown-item" id="level3"  href="#">Level 3</button></li>
               </ul>
             </div>
           </div>
@@ -76,9 +76,8 @@
           </div>
         </div>
       </div>
-      <div class="col-xl-4 mt-5">
-        <div id="fen"></div>
-        <p id="pgn"></p>
+      <div class="col-xl-4 d-flex align-items-end">
+        <div id="pgn"></div>
       </div>
     </div>
     <main class="row mt-5 mb-2">
