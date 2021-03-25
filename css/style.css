@@ -27,9 +27,15 @@ h1 {
 	cursor: pointer;
 }
 
+#pgn {
+	margin-top: 10px;
+    border: 1px solid lightgrey;
+    border-radius: 10px;
+}
+
 tbody {
     display: block;
-    height: 540px;
+    height: 200px;
     overflow: auto;
 }
 
@@ -62,4 +68,13 @@ main li {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+@media screen and (min-width: 1200px) {
+	tbody {
+	    height: 540px;
+	}
+	#pgn {
+		margin-top: 0;
+	}
 }
