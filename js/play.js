@@ -11,9 +11,22 @@ var $pgn = $('#pgn')
 var finished = true
 var gameId = getUrlParameter("id")
 var color = getUrlParameter("color")
+var clock = getUrlParameter("clock")
 var $loader = $('#loader')
+var $oppclock = $('#opp-clock')
+var $myclock = $('#my-clock')
+var $oppsec = $('#oppsec')
+var $oppmin = $('#oppmin')
+    $oppmin.innerHTML = clock
+var $mysec = $('#mysec')
+var $mymin = $('#mymin')
+    $mymin.innerHTML = clock
+var sec
+var min
+var myInterval
+var oppInterval
 
-var $log = $("#log");
+var $log = $("#log")
 
 function getUrlParameter(sParam) {
   var sPageURL = window.location.search.substring(1),
@@ -37,10 +50,10 @@ function capitalize(word) {
 
 if (window["WebSocket"]) {
   conn = new WebSocket(`ws://localhost:8000/game?id=${gameId}`);
-  conn.onerror = function (evt) {
+  conn.onerror = evt => {
     // appendLog("Could not connect.");
   };
-  conn.onclose = function (evt) {
+  conn.onclose = evt => {
     switch (evt.code) {
     case 1006:
       appendLog("Game not found");
@@ -53,15 +66,35 @@ if (window["WebSocket"]) {
       break;
     }
   };
-  conn.onmessage = function (evt) {
-    let move = game.move(JSON.parse(evt.data));
+  conn.onmessage = evt => {
+    let data = JSON.parse(evt.data);
+    let move = game.move(data);
 
     // see if the move is legal
     if (move === null) {
+      // if not, see if the message received has to do with opponent's time left
+      if (data.oppClock) {
+        // if both players have done their first move (history >= 2),
+        // reset opponent's clock
+        if (game.history().length >= 2) {
+          $oppsec.innerHTML = Math.floor( (data.oppClock/1000) % 60 );
+          $oppmin.innerHTML = Math.floor( (data.oppClock/1000*60) % 60 );
+        }
+        return;
+      }
       appendLog(`Error: illegal move: ${evt.data}`);
       return;
     }
-
+    // received a move:
+    // if both players have done their first move (history >= 2),
+    // stop my clock and start opponent's clock
+    if (game.history().length >= 2) {
+      startMyClock();
+      // then reset opponent's clock
+      $oppsec.innerHTML = Math.floor( (data.oppClock/1000) % 60 );
+      $oppmin.innerHTML = Math.floor( (data.oppClock/1000*60) % 60 );
+    }
+    // finally, update the board.
     board.position(game.fen());
     updateStatus();
   };
@@ -166,6 +199,17 @@ function onDrop (source, target) {
     promotion: 'q'
   }));
 
+  clearInterval(myInterval);
+  // if both players have done their first move (history >= 2),
+  // stop my clock and start opponent's clock
+  if (game.history().length >= 2) {
+    startOppClock();
+  }
+
+  if (game.game_over()) {
+    conn.close(1000, "draw");
+  }
+
   updateStatus()
 }
 
@@ -258,3 +302,36 @@ var config = {
 board = Chessboard('board', config)
 
 updateStatus()
+
+function ticker(playerSec, playerMin, playerClock) {
+  return func() {
+    sec = playerSec.innerHTML;
+    min = playerMin.innerHTML;
+
+    if (sec >= 11) {
+      sec--;
+      playerSec.textContent = sec;
+    } else if (sec >= 1) {
+      sec--;
+      playerSec.textContent = '0' + sec;
+    } else if (sec == 0 && min >= 1){
+      sec = 59;
+      min--;
+      playerSec.textContent = sec;
+      playerMin.textContent = min;
+    } else {
+      playerClock.style.background = 'red';
+    }
+  }
+}
+
+// stop opponent's clock and start my clock
+function startMyClock() {
+  clearInterval(oppInterval);
+  myInterval = setInterval(ticker($mysec, $mymin, $myclock), 1000);
+}
+// stop my clock and start opponent's clock
+function startOppClock() {
+  clearInterval(myInterval);
+  oppInterval = setInterval(ticker($oppsec, $oppmin, $oppclock), 1000);
+}
