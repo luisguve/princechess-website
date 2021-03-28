@@ -69,7 +69,7 @@ function play(min) {
       return
     }
     // redirect to play room
-    document.location.href = `/play.html?id=${res.roomId}&color=${res.color}&clock=${min}`;
+    document.location.href = `/play.html?id=${res.roomId}&color=${res.color}&clock=${min}&opp=${res.opp}`;
   });
 }
 
@@ -222,3 +222,41 @@ var config = {
 board = Chessboard('board', config)
 
 updateStatus()
+
+fetch("http://localhost:8000/username", {credentials: "include"})
+.then(res => res.text())
+.then(username => {
+  if (username) {
+    let content = `<h3 class="username p-2">Hello, <em><b>${username}</b></em></h3`
+    document.querySelector("#username-placeholder").innerHTML = content
+  }
+})
+
+$('#username-form').submit(e => {
+  e.preventDefault()
+  let username = $("#username").val()
+  if (!username) {
+    return
+  }
+
+  let data = new FormData(document.querySelector("#username-form"))
+
+  // Make the request
+  let url = 'http://localhost:8000/username';
+  let fetchOptions = {
+    method: 'POST',
+    credentials: "include",
+    body: data
+  };
+
+  fetch(url, fetchOptions)
+  .then(res => {
+    if (!res.ok) {
+      appendLog("Could not reach server");
+    }
+  })
+  .then(() => {
+    let content = `<h3 class="bg-primary">Hello, ${username}</h3`
+    document.querySelector("#username-placeholder").innerHTML = content;
+  });
+})
