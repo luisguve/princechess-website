@@ -36,6 +36,10 @@
     </div>
     <h2 id="log"></h2>
     <div class="row justify-content-center">
+      <div class="col d-flex align-items-center justify-content-end d-xl-none opp-clock">
+        <span class="oppmin fs-2">5</span>:<span class="oppsec fs-2">00</span>
+        <h5 class="opp-username d-inline-block ms-2 mb-0"></h5>
+      </div>
       <div class="col-xl-8">
         <div class="row flex-column align-items-center mt-2">
           <div class="col">
@@ -43,13 +47,19 @@
           </div>
         </div>
       </div>
-      <div class="col-xl-4 d-flex align-items-end">
-        <div id="opp-clock">
-          <span id="oppmin">5</span>:<span id="oppsec">00</span>
+      <div class="col d-flex align-items-center justify-content-end d-xl-none my-clock">
+        <span class="mymin fs-2">5</span>:<span class="mysec fs-2">00</span>
+        <h5 class="my-username d-inline-block ms-2 mb-0"></h5>
+      </div>
+      <div class="col-xl-4 d-flex flex-column justify-content-around">
+        <div class="opp-clock d-none d-xl-block">
+          <span class="oppmin fs-2">5</span>:<span class="oppsec fs-2">00</span>
+          <h5 class="opp-username d-inline-block me-2"></h5>
         </div>
         <div id="pgn"></div>
-        <div id="my-clock">
-          <span id="mymin">5</span>:<span id="mysec">00</span>
+        <div class="my-clock d-none d-xl-block">
+          <span class="mymin fs-2">5</span>:<span class="mysec fs-2">00</span>
+          <h5 class="my-username d-inline-block me-2"></h5>
         </div>
       </div>
     </div>
