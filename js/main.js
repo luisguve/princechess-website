@@ -69,7 +69,7 @@ function play(min) {
       return
     }
     // redirect to play room
-    document.location.href = `/play.html?id=${res.roomId}&color=${res.color}`;
+    document.location.href = `/play.html?id=${res.roomId}&color=${res.color}&clock=${min}`;
   });
 }
 
