@@ -72,9 +72,13 @@ main li {
 
 @media screen and (min-width: 1200px) {
 	tbody {
-	    height: 540px;
+	    height: 370px;
 	}
 	#pgn {
 		margin-top: 0;
 	}
+}
+
+.username {
+	background: aliceblue;
 }
