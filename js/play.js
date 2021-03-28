@@ -12,15 +12,20 @@ var finished = true
 var gameId = getUrlParameter("id")
 var color = getUrlParameter("color")
 var clock = getUrlParameter("clock")
+var opp = getUrlParameter("opp")
 var $loader = $('#loader')
-var $oppclock = $('#opp-clock')
-var $myclock = $('#my-clock')
-var $oppsec = $('#oppsec')
-var $oppmin = $('#oppmin')
-    $oppmin.innerHTML = clock
-var $mysec = $('#mysec')
-var $mymin = $('#mymin')
-    $mymin.innerHTML = clock
+var $oppclock = $('.opp-clock')
+var $myclock = $('.my-clock')
+var $oppsec = $('.oppsec')
+var $oppmin = $('.oppmin')
+  for (var i = $oppmin.length - 1; i >= 0; i--) {
+    $oppmin[i].innerHTML = clock
+  }
+var $mysec = $('.mysec')
+var $mymin = $('.mymin')
+  for (var i = $mymin.length - 1; i >= 0; i--) {
+    $mymin[i].innerHTML = clock
+  }
 var sec
 var min
 var myInterval
@@ -87,7 +92,7 @@ if (window["WebSocket"]) {
     }
     // received a move:
     // if both players have done their first move (history >= 2),
-    // stop my clock and start opponent's clock
+    // stop opponent's clock and start my clock
     if (game.history().length >= 2) {
       startMyClock();
       // then reset opponent's clock
@@ -100,6 +105,21 @@ if (window["WebSocket"]) {
   };
 } else {
   alert("Your browser does not support WebSockets.");
+}
+
+fetch("http://localhost:8000/username", {credentials: "include"})
+.then(res => res.text())
+.then(username => {
+  username = username ? username : "You"
+  let containers = document.querySelectorAll(".my-username")
+  for (var i = containers.length - 1; i >= 0; i--) {
+    containers[i].innerHTML = username
+  }
+});
+
+let oppUsername = document.querySelectorAll(".opp-username")
+for (var i = oppUsername.length - 1; i >= 0; i--) {
+  oppUsername[i].innerHTML = opp
 }
 
 function appendLog(content) {
@@ -199,7 +219,6 @@ function onDrop (source, target) {
     promotion: 'q'
   }));
 
-  clearInterval(myInterval);
   // if both players have done their first move (history >= 2),
   // stop my clock and start opponent's clock
   if (game.history().length >= 2) {
@@ -304,23 +323,33 @@ board = Chessboard('board', config)
 updateStatus()
 
 function ticker(playerSec, playerMin, playerClock) {
-  return func() {
-    sec = playerSec.innerHTML;
-    min = playerMin.innerHTML;
+  return () => {
+    sec = playerSec[0].innerHTML;
+    min = playerMin[0].innerHTML;
 
     if (sec >= 11) {
       sec--;
-      playerSec.textContent = sec;
+      for (var i = playerSec.length - 1; i >= 0; i--) {
+        playerSec[i].textContent = sec;
+      }
     } else if (sec >= 1) {
       sec--;
-      playerSec.textContent = '0' + sec;
+      for (var i = playerSec.length - 1; i >= 0; i--) {
+        playerSec[i].textContent = '0' + sec;
+      }
     } else if (sec == 0 && min >= 1){
       sec = 59;
       min--;
-      playerSec.textContent = sec;
-      playerMin.textContent = min;
+      for (var i = playerSec.length - 1; i >= 0; i--) {
+        playerSec[i].textContent = sec;
+      }
+      for (var i = playerMin.length - 1; i >= 0; i--) {
+        playerMin[i].textContent = min;
+      }
     } else {
-      playerClock.style.background = 'red';
+      for (var i = playerClock.length - 1; i >= 0; i--) {
+        playerClock[i].style.background = 'red';
+      }
     }
   }
 }
