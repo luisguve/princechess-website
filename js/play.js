@@ -54,7 +54,7 @@ function capitalize(word) {
 }
 
 if (window["WebSocket"]) {
-  conn = new WebSocket(`ws://localhost:8000/game?id=${gameId}`);
+  conn = new WebSocket(`ws://localhost:8000/game?id=${gameId}&clock=${clock}`);
   conn.onerror = evt => {
     // appendLog("Could not connect.");
   };
