@@ -37,6 +37,9 @@ $('#level3').click(() => {
   return true;
 });
 
+$('#1min').click(() => {
+  play(1);
+});
 $('#3min').click(() => {
   play(3);
 });
