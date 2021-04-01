@@ -11,27 +11,24 @@ var $pgn = $('#pgn')
 var finished = true
 var gameId = getUrlParameter("id")
 var color = getUrlParameter("color")
+var oppColor = (color === "white") ? "black" : "white";
 var clock = getUrlParameter("clock")
 var opp = getUrlParameter("opp")
-var $loader = $('#loader')
 var $oppclock = $('.opp-clock')
 var $myclock = $('.my-clock')
 var $oppsec = $('.oppsec')
 var $oppmin = $('.oppmin')
-  for (var i = $oppmin.length - 1; i >= 0; i--) {
-    $oppmin[i].innerHTML = clock
-  }
+  $oppmin.html(clock)
 var $mysec = $('.mysec')
 var $mymin = $('.mymin')
-  for (var i = $mymin.length - 1; i >= 0; i--) {
-    $mymin[i].innerHTML = clock
-  }
+  $mymin.html(clock)
 var sec
 var min
 var myInterval
 var oppInterval
 
 var $log = $("#log")
+var $loader = $log
 
 function getUrlParameter(sParam) {
   var sPageURL = window.location.search.substring(1),
@@ -53,6 +50,16 @@ function capitalize(word) {
   return word[0].toUpperCase() + word.slice(1);
 }
 
+function updateClock(mins, secs, ms) {
+  let minutes = Math.floor( (ms/1000/60) % 60 );
+  let seconds = Math.floor( (ms/1000) % 60 );
+  if (seconds == 0) {
+    seconds = "00";
+  }
+  mins.html(minutes);
+  secs.html(seconds);
+}
+
 if (window["WebSocket"]) {
   conn = new WebSocket(`ws://localhost:8000/game?id=${gameId}&clock=${clock}`);
   conn.onerror = evt => {
@@ -70,6 +77,7 @@ if (window["WebSocket"]) {
       appendLog("Connection closed.");
       break;
     }
+    stopClocks()
   };
   conn.onmessage = evt => {
     let data = JSON.parse(evt.data);
@@ -82,10 +90,26 @@ if (window["WebSocket"]) {
         // if both players have done their first move (history >= 2),
         // reset opponent's clock
         if (game.history().length >= 2) {
-          $oppsec.innerHTML = Math.floor( (data.oppClock/1000) % 60 );
-          $oppmin.innerHTML = Math.floor( (data.oppClock/1000*60) % 60 );
+          updateClock($oppmin, $oppsec, data.oppClock);
+          updateClock($mymin, $mysec, data.clock);
         }
         return;
+      // if not, see if one of the player ran out of time
+      } else if (data.OOT) {
+        stopClocks();
+        switch (data.OOT) {
+        case "MY_CLOCK":
+          updateStatus(color);
+          printOOT($mysec, $mymin, $myclock);
+          break;
+        case "OPP_CLOCK":
+          updateStatus(oppColor);
+          printOOT($oppsec, $oppmin, $oppclock);
+          break;
+        default:
+          appendLog("Invalid flag:" + data.OOT);
+        }
+        return
       }
       appendLog(`Error: illegal move: ${evt.data}`);
       return;
@@ -96,8 +120,8 @@ if (window["WebSocket"]) {
     if (game.history().length >= 2) {
       startMyClock();
       // then reset opponent's clock
-      $oppsec.innerHTML = Math.floor( (data.oppClock/1000) % 60 );
-      $oppmin.innerHTML = Math.floor( (data.oppClock/1000*60) % 60 );
+      updateClock($oppmin, $oppsec, data.oppClock);
+      updateClock($mymin, $mysec, data.clock);
     }
     // finally, update the board.
     board.position(game.fen());
@@ -111,10 +135,7 @@ fetch("http://localhost:8000/username", {credentials: "include"})
 .then(res => res.text())
 .then(username => {
   username = username ? username : "You"
-  let containers = document.querySelectorAll(".my-username")
-  for (var i = containers.length - 1; i >= 0; i--) {
-    containers[i].innerHTML = username
-  }
+  $(".my-username").html(username)
 });
 
 let oppUsername = document.querySelectorAll(".opp-username")
@@ -133,6 +154,14 @@ function emptyLog() {
     log.firstChild.remove()
   }
 }
+
+$('#1min').click(() => {
+  if (!finished) {
+    alert("You are in the middle of a game")
+    return
+  }
+  play(1);
+});
 
 $('#3min').click(() => {
   if (!finished) {
@@ -178,7 +207,7 @@ function play(min) {
       return;
     }
     // redirect to play room
-    document.location.href = `/play.html?id=${res.roomId}&color=${res.color}`;
+    document.location.href = `/play.html?id=${res.roomId}&color=${res.color}&clock=${min}&opp=${res.opp}`;
   });
 }
 
@@ -238,16 +267,20 @@ function onSnapEnd () {
   board.position(game.fen())
 }
 
-function updateStatus () {
+function updateStatus(colorOOT) {
   var status = ''
 
   var moveColor = 'White'
   if (game.turn() === 'b') {
     moveColor = 'Black'
   }
-
+  // out of time?
+  if (colorOOT) {
+    let winner = (colorOOT === "white") ? "black" : "white";
+    status = `${capitalize(colorOOT)} ran out of time. ${capitalize(winner)} wins.`;
+  }
   // checkmate?
-  if (game.in_checkmate()) {
+  else if (game.in_checkmate()) {
     status = 'Game over, ' + moveColor + ' is in checkmate.'
   }
 
@@ -322,7 +355,7 @@ board = Chessboard('board', config)
 
 updateStatus()
 
-function ticker(playerSec, playerMin, playerClock) {
+function ticker(playerSec, playerMin, playerClock, interval) {
   return () => {
     sec = playerSec[0].innerHTML;
     min = playerMin[0].innerHTML;
@@ -349,6 +382,7 @@ function ticker(playerSec, playerMin, playerClock) {
     } else {
       for (var i = playerClock.length - 1; i >= 0; i--) {
         playerClock[i].style.background = 'red';
+        clearInterval(interval);
       }
     }
   }
@@ -357,10 +391,19 @@ function ticker(playerSec, playerMin, playerClock) {
 // stop opponent's clock and start my clock
 function startMyClock() {
   clearInterval(oppInterval);
-  myInterval = setInterval(ticker($mysec, $mymin, $myclock), 1000);
+  myInterval = setInterval(ticker($mysec, $mymin, $myclock, myInterval), 1000);
 }
 // stop my clock and start opponent's clock
 function startOppClock() {
   clearInterval(myInterval);
-  oppInterval = setInterval(ticker($oppsec, $oppmin, $oppclock), 1000);
+  oppInterval = setInterval(ticker($oppsec, $oppmin, $oppclock, oppInterval), 1000);
+}
+function stopClocks() {
+  clearInterval(myInterval);
+  clearInterval(oppInterval);
+}
+function printOOT(playerSec, playerMin, playerClock) {
+  playerSec.html("00");
+  playerMin.html("0");
+  playerClock.css("background", "red");
 }
