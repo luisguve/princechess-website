@@ -44,6 +44,12 @@
           <button class="btn btn-primary accept-draw">Accept</button>
           <button class="btn btn-secondary decline-draw">Ignore</button>
         </div>
+        <!-- remove class d-none on rematch offer and add it on rematch accept/decline -->
+        <div class="rematch-offer d-none">
+          Opponent offers rematch
+          <button class="btn btn-primary accept-rematch">Accept</button>
+          <button class="btn btn-secondary decline-rematch">Decline</button>
+        </div>
       </div>
     </div>
     <h2 id="log"></h2>
@@ -55,6 +61,12 @@
             Opponent offers draw
             <button class="btn btn-primary accept-draw">Accept</button>
             <button class="btn btn-secondary decline-draw">Ignore</button>
+          </div>
+          <!-- remove class d-none on rematch offer and add it on rematch accept/decline -->
+          <div class="rematch-offer w-75 d-none">
+            Opponent offers rematch
+            <button class="btn btn-primary accept-rematch">Accept</button>
+            <button class="btn btn-secondary decline-rematch">Decline</button>
           </div>
           <div>
             <span class="oppmin fs-2">5</span>:<span class="oppsec fs-2">00</span>
@@ -74,6 +86,7 @@
           <div class="actions">
             <button class="btn btn-primary disabled draw">Offer draw</button>
             <button class="btn btn-danger disabled resign">Resign</button>
+            <button class="btn btn-info disabled rematch">Rematch</button>
           </div>
           <div>
             <span class="mymin fs-2">5</span>:<span class="mysec fs-2">00</span>
@@ -94,6 +107,7 @@
         <div class="actions d-none d-xl-block">
           <button class="btn btn-primary disabled draw">Offer draw</button>
           <button class="btn btn-danger disabled resign">Resign</button>
+          <button class="btn btn-info disabled rematch">Rematch</button>
         </div>
       </div>
     </div>

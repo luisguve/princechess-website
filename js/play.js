@@ -41,6 +41,13 @@ var sentDrawOffer = false
 var resignButtons = $("button.resign")
 var resignDisabled = true
 
+var rematchButtons = $("button.rematch")
+var rematchDisabled = true
+
+var rematchOffer = $(".rematch-offer")
+var acceptRematchButtons = $("button.accept-rematch")
+var declineRematchButtons = $("button.decline-rematch")
+
 function getUrlParameter(sParam) {
   var sPageURL = window.location.search.substring(1),
     sURLVariables = sPageURL.split('&'),
@@ -124,6 +131,16 @@ if (window["WebSocket"]) {
 
     if (data.drawOffer) {
       drawOffer.removeClass("d-none");
+      return;
+    }
+
+    if (data.rematchOffer) {
+      rematchOffer.removeClass("d-none");
+      return;
+    }
+
+    if (data.oppAcceptedRematch) {
+      resetGame();
       return;
     }
 
@@ -557,20 +574,59 @@ resignButtons.click(e => {
   updateStatus({resigned: color});
 });
 
+rematchButtons.click(e => {
+  if (rematchDisabled || !finished) return;
+  let action = JSON.stringify({
+    rematchOffer: true
+  });
+  conn.send(action);
+  rematchButtons.addClass("disabled");
+  rematchDisabled = true;
+});
+
+acceptRematchButtons.click(e => {
+  let action = JSON.stringify({
+    acceptRematch: true
+  });
+  conn.send(action);
+  resetGame();
+  rematchOffer.addClass("d-none");
+});
+
+declineRematchButtons.click(e => {
+  rematchOffer.addClass("d-none");
+});
+
 function finishGame() {
   stopClocks();
   let signalGameOver = JSON.stringify({
     gameOver: true,
   });
-  conn.send(signalGameOver);
+  if (conn) {
+    conn.send(signalGameOver);
+  }
   finished = true;
   drawDisabled = true
   drawButtons.addClass("disabled")
   resignDisabled = true
   resignButtons.addClass("disabled")
   drawOffer.addClass("d-none")
+  rematchDisabled = false
+  rematchButtons.removeClass("disabled")
 }
+
 function resetGame() {
+  emptyLog();
+  updateStatus();
   finished = false;
   sentDrawOffer = false;
+  moves = 0;
+  color = color == "white" ? "black" : "white";
+  board.start();
+  board.flip();
+  game.reset();
+  $oppmin.html(clock);
+  $oppsec.html("00");
+  $mymin.html(clock);
+  $mysec.html("00");
 }
