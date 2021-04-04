@@ -81,6 +81,20 @@ if (window["WebSocket"]) {
   };
   conn.onmessage = evt => {
     let data = JSON.parse(evt.data);
+
+    if (data.chat) {
+      let messages = data.chat.split('\n');
+      for (let i = 0; i < messages.length; i++) {
+          let item = document.createElement("p");
+          let from = document.createElement("b");
+          from.innerText = data.from + ": ";
+          item.appendChild(from);
+          item.appendChild(document.createTextNode(messages[i]));
+          appendChat(item);
+      }
+      return
+    }
+
     let move = game.move(data);
 
     // see if the move is legal
@@ -111,6 +125,7 @@ if (window["WebSocket"]) {
         }
         return
       }
+
       appendLog(`Error: illegal move: ${evt.data}`);
       return;
     }
@@ -212,8 +227,8 @@ function play(min) {
 }
 
 function onDragStart (source, piece, position, orientation) {
-  // do not pick up pieces if the game is over
-  if (game.game_over()) return false
+  // do not pick up pieces if the game is over or one of the clocks reached zero
+  if (game.game_over() || clockInZero()) return false
 
   // only pick up pieces for the side to move
   if ((game.turn() === 'w' && color === 'black') ||
@@ -242,10 +257,12 @@ function onDrop (source, target) {
   }
 
   conn.send(JSON.stringify({
-    from: source,
-    to: target,
-    color: move.color,
-    promotion: 'q'
+    move: {
+      from: source,
+      to: target,
+      color: move.color,
+      promotion: 'q'
+    }
   }));
 
   // if both players have done their first move (history >= 2),
@@ -406,4 +423,36 @@ function printOOT(playerSec, playerMin, playerClock) {
   playerSec.html("00");
   playerMin.html("0");
   playerClock.css("background", "red");
+}
+function clockInZero() {
+  return ($mysec.html() == "00" && $mymin.html() == "0") ||
+    ($oppsec.html() == "00" && $oppmin.html() == "0")
+}
+
+/* Chat */
+
+var chatMsg = $("#chat-msg");
+var chatLog = $("#chat-log");
+
+$("#chat-form").submit(e => {
+  e.preventDefault();
+  if (!conn) {
+      return;
+  }
+  if (!chatMsg.val()) {
+      return;
+  }
+  let msg = JSON.stringify({
+    chat: chatMsg.val(),
+  });
+  conn.send(msg);
+  chatMsg.val("");
+});
+
+function appendChat(item) {
+  var doScroll = chatLog.scrollTop > chatLog.scrollHeight - chatLog.clientHeight - 1;
+  chatLog.append(item);
+  if (doScroll) {
+    chatLog.scrollTop = chatLog.scrollHeight - chatLog.clientHeight;
+  }
 }
