@@ -77,6 +77,9 @@ main li {
 	#pgn {
 		margin-top: 0;
 	}
+	#status {
+		width: 40%;
+	}
 }
 
 .username {

@@ -5,10 +5,11 @@ var conn;
 
 var board = null
 var game = new Chess()
+var moves = 0
 var $status = $('#status')
 var $fen = $('#fen')
 var $pgn = $('#pgn')
-var finished = true
+var finished = false
 var gameId = getUrlParameter("id")
 var color = getUrlParameter("color")
 var oppColor = (color === "white") ? "black" : "white";
@@ -29,6 +30,16 @@ var oppInterval
 
 var $log = $("#log")
 var $loader = $log
+
+var drawOffer = $(".draw-offer");
+var acceptDrawButtons = $("button.accept-draw");
+var declineDrawButtons = $("button.decline-draw");
+
+var drawButtons = $("button.draw")
+var drawDisabled = true
+var sentDrawOffer = false
+var resignButtons = $("button.resign")
+var resignDisabled = true
 
 function getUrlParameter(sParam) {
   var sPageURL = window.location.search.substring(1),
@@ -71,13 +82,17 @@ if (window["WebSocket"]) {
       appendLog("Game not found");
       break;
     case 1001:
-      appendLog(`Game over: opponent left. ${capitalize(color)} wins`);
+      if (finished) {
+        appendLog(`Opponent left the room.`);
+      } else {
+        appendLog(`Game over: opponent left. ${capitalize(color)} wins`);
+      }
       break;
     case 1000:
       appendLog("Connection closed.");
       break;
     }
-    stopClocks()
+    finishGame()
   };
   conn.onmessage = evt => {
     let data = JSON.parse(evt.data);
@@ -95,34 +110,55 @@ if (window["WebSocket"]) {
       return
     }
 
-    let move = game.move(data);
+    if (data.oppResigned) {
+      finishGame();
+      updateStatus({resigned: oppColor});
+      return;
+    }
+
+    if (data.oppAcceptedDraw) {
+      finishGame();
+      updateStatus({draw: true});
+      return;
+    }
+
+    if (data.drawOffer) {
+      drawOffer.removeClass("d-none");
+      return;
+    }
+
+    let move = game.move(data.move);
 
     // see if the move is legal
     if (move === null) {
       // if not, see if the message received has to do with opponent's time left
       if (data.oppClock) {
-        // if both players have done their first move (history >= 2),
+        // if both players have done their first move,
         // reset opponent's clock
-        if (game.history().length >= 2) {
+        if (moves >= 2) {
           updateClock($oppmin, $oppsec, data.oppClock);
           updateClock($mymin, $mysec, data.clock);
         }
         return;
+      }
       // if not, see if one of the player ran out of time
-      } else if (data.OOT) {
-        stopClocks();
+      if (data.OOT) {
+        let clockOOT;
         switch (data.OOT) {
         case "MY_CLOCK":
-          updateStatus(color);
+          clockOOT.colorOOT = color;
           printOOT($mysec, $mymin, $myclock);
           break;
         case "OPP_CLOCK":
-          updateStatus(oppColor);
+          clockOOT.colorOOT = oppColor;
           printOOT($oppsec, $oppmin, $oppclock);
           break;
         default:
           appendLog("Invalid flag:" + data.OOT);
+          return;
         }
+        finishGame();
+        updateStatus(clockOOT);
         return
       }
 
@@ -130,9 +166,10 @@ if (window["WebSocket"]) {
       return;
     }
     // received a move:
-    // if both players have done their first move (history >= 2),
+    moves++;
+    // if both players have done their first move,
     // stop opponent's clock and start my clock
-    if (game.history().length >= 2) {
+    if (moves >= 2) {
       startMyClock();
       // then reset opponent's clock
       updateClock($oppmin, $oppsec, data.oppClock);
@@ -228,7 +265,7 @@ function play(min) {
 
 function onDragStart (source, piece, position, orientation) {
   // do not pick up pieces if the game is over or one of the clocks reached zero
-  if (game.game_over() || clockInZero()) return false
+  if (finished || clockInZero()) return false
 
   // only pick up pieces for the side to move
   if ((game.turn() === 'w' && color === 'black') ||
@@ -265,14 +302,12 @@ function onDrop (source, target) {
     }
   }));
 
-  // if both players have done their first move (history >= 2),
-  // stop my clock and start opponent's clock
-  if (game.history().length >= 2) {
-    startOppClock();
-  }
+  moves++;
 
-  if (game.game_over()) {
-    conn.close(1000, "draw");
+  // if both players have done their first move,
+  // stop my clock and start opponent's clock
+  if (moves >= 2) {
+    startOppClock();
   }
 
   updateStatus()
@@ -284,17 +319,42 @@ function onSnapEnd () {
   board.position(game.fen())
 }
 
-function updateStatus(colorOOT) {
-  var status = ''
+function updateStatus(data) {
+  // if both players have done their first move,
+  // enable draw and resign buttons
+  if (moves == 2) {
+    if (drawDisabled && !sentDrawOffer && !finished) {
+      drawButtons.removeClass("disabled");
+      drawDisabled = false;
+    }
+    if (resignDisabled && !finished) {
+      resignButtons.removeClass("disabled");
+      resignDisabled = false;
+    }
+  }
 
-  var moveColor = 'White'
+  let status = ''
+
+  let moveColor = 'White'
   if (game.turn() === 'b') {
     moveColor = 'Black'
   }
-  // out of time?
-  if (colorOOT) {
-    let winner = (colorOOT === "white") ? "black" : "white";
-    status = `${capitalize(colorOOT)} ran out of time. ${capitalize(winner)} wins.`;
+  // any data?
+  if (data) {
+    // out of time?
+    if (data.colorOOT) {
+      let winner = (data.colorOOT === "white") ? "black" : "white";
+      status = `${capitalize(data.colorOOT)} ran out of time. ${capitalize(winner)} wins.`;
+    }
+    // opponent resigned?
+    else if (data.resigned) {
+      let winner = (data.resigned === "white") ? "black" : "white";
+      status = `${capitalize(data.resigned)} resigned. ${capitalize(winner)} wins.`;
+    }
+    // draw offer accepted?
+    else if (data.draw) {
+      status = 'Game over, draw offer accepted'
+    }
   }
   // checkmate?
   else if (game.in_checkmate()) {
@@ -325,6 +385,10 @@ function updateStatus(colorOOT) {
     if (game.in_check()) {
       status += ', ' + moveColor + ' is in check'
     }
+  }
+
+  if (game.game_over()) {
+    finishGame();
   }
 
   $status.html(status)
@@ -455,4 +519,58 @@ function appendChat(item) {
   if (doScroll) {
     chatLog.scrollTop = chatLog.scrollHeight - chatLog.clientHeight;
   }
+}
+
+// actions
+
+drawButtons.click(e => {
+  if (drawDisabled) return;
+  let action = JSON.stringify({
+    drawOffer: true
+  });
+  conn.send(action);
+  drawButtons.addClass("disabled")
+  drawDisabled = true
+  sentDrawOffer = true
+});
+
+acceptDrawButtons.click(e => {
+  let action = JSON.stringify({
+    acceptDraw: true
+  });
+  conn.send(action);
+  finishGame();
+  updateStatus({draw: true});
+});
+
+declineDrawButtons.click(e => {
+  drawOffer.addClass("d-none");
+});
+
+resignButtons.click(e => {
+  if (resignDisabled) return;
+  let action = JSON.stringify({
+    resign: true
+  });
+  conn.send(action);
+  finishGame();
+  updateStatus({resigned: color});
+});
+
+function finishGame() {
+  stopClocks();
+  let signalGameOver = JSON.stringify({
+    gameOver: true,
+  });
+  conn.send(signalGameOver);
+  finished = true;
+  drawDisabled = true
+  drawButtons.addClass("disabled")
+  resignDisabled = true
+  resignButtons.addClass("disabled")
+  drawOffer.addClass("d-none")
+}
+function resetGame() {
+  finished = false;
+  sentDrawOffer = false;
 }
