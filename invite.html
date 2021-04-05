@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Play Prince Chess</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Play and learn how to play Prince Chess, a chess variant that includes two new pieces called princes, and a new way to win the game">
+  <meta name="robots" content="index, follow">
+  <meta charset="UTF-8">
+  <!--
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">-->
+  <link rel="stylesheet" type="text/css" href="/bootstrap5/bootstrap.min.css">
+
+  <script src="/jquery/jquery-3.5.1.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col h-100vh d-flex justify-content-center align-items-center">
+        <h1 id="msg">Redirecting you to the game...</h1>
+      </div>
+    </div>
+  </div>
+  <footer class="container-fluid py-3">
+    <hr>
+    <h6 class="text-center">Prince chess is a variation of chess created by Jesse A. Obligacion</h6>
+    <h6 class="text-center">&copy; All rights reserved</h6>
+  </footer>
+  <script type="text/javascript" src="/js/helpers.js"></script>
+</body>
+</html>
+
+<!-- invitation.js -->
+<script type="text/javascript">
+  /* Url must be in the format invite.html?id={game_id} */
+  var msg = $("#msg");
+  let inviteId = getUrlParameter("id")
+
+  let url = `http://localhost:8000/invite?id=${inviteId}`;
+  fetch(url)
+  .then(response => {
+    if (!response.ok) {
+      msg.html("Could not reach server");
+      return
+    }
+    return response.json();
+  })
+  .then(res => {
+    if (!res.roomId) {
+      msg.html("Game not found");
+      return
+    }
+    // redirect to play room
+    document.location.href = `/play.html?id=${res.roomId}&color=${res.color}&clock=${res.min}&opp=${res.opp}`;
+  });
+</script>

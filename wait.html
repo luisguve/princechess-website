@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Play Prince Chess</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Play and learn how to play Prince Chess, a chess variant that includes two new pieces called princes, and a new way to win the game">
+  <meta name="robots" content="index, follow">
+  <meta charset="UTF-8">
+  <!--
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">-->
+  <link rel="stylesheet" type="text/css" href="/bootstrap5/bootstrap.min.css">
+
+  <script src="/jquery/jquery-3.5.1.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col h-100vh d-flex justify-content-center align-items-center">
+        <h1 id="msg">Use this link: <b id="invite-link"></b></h1>
+        <h2 class="fs-4" id="wait-msg">Waiting for opponent...</h2>
+      </div>
+    </div>
+  </div>
+  <footer class="container-fluid py-3">
+    <hr>
+    <h6 class="text-center">Prince chess is a variation of chess created by Jesse A. Obligacion</h6>
+    <h6 class="text-center">&copy; All rights reserved</h6>
+  </footer>
+  <script type="text/javascript" src="/js/helpers.js"></script>
+  <script type="text/javascript">
+    let msg = $("#msg")
+    let waitMsg = $("#wait-msg")
+    let inviteLink = $("#invite-link")
+    /* Url must be in the format wait.html?id={game_id} */
+    let inviteId = getUrlParameter("id")
+    if (!inviteId) {
+      msg.html("Invalid invitation link");
+      waitMsg.html("");
+      return
+    }
+
+    if (window["WebSocket"]) {
+      conn = new WebSocket(`ws://localhost:8000/wait?id=${inviteId}`);
+      conn.onerror = evt => {
+        msg.html("Could not connect. Game aborted.");
+        waitMsg.html("");
+      };
+      conn.onclose = evt => {
+        switch (evt.code) {
+        case 1006:
+          msg.html("You were disconnected. Game cancelled.");
+          waitMsg.html("");
+          break;
+        case 1000:
+          waitMsg.html("Redirecting you to the game.");
+          break;
+        default:
+          msg.html("Apologies, something went wrong. Code:", evt.code);
+        }
+      };
+      conn.onmessage = evt => {
+        let res = JSON.parse(evt.data);
+        // redirect to play room
+        document.location.href = `http://localhost:8080/play.html?id=${res.roomId}&color=${res.color}&clock=${res.min}&opp=${res.opp}`;
+      };
+    } else {
+      $("#msg").html("Your browser does not support WebSockets.");
+      return
+    }
+
+    inviteLink.html(`http://localhost:8080/invite.html?id=${inviteId}`);
+  </script>
+</body>
+</html>
