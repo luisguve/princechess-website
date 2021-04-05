@@ -1,6 +1,3 @@
-// NOTE: this example uses the chess.js library:
-// https://github.com/jhlywa/chess.js
-
 var conn;
 
 var board = null
@@ -47,26 +44,6 @@ var rematchDisabled = true
 var rematchOffer = $(".rematch-offer")
 var acceptRematchButtons = $("button.accept-rematch")
 var declineRematchButtons = $("button.decline-rematch")
-
-function getUrlParameter(sParam) {
-  var sPageURL = window.location.search.substring(1),
-    sURLVariables = sPageURL.split('&'),
-    sParameterName,
-    i;
-
-  for (i = 0; i < sURLVariables.length; i++) {
-    sParameterName = sURLVariables[i].split('=');
-
-    if (sParameterName[0] === sParam) {
-      return typeof sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
-    }
-  }
-  return false;
-}
-
-function capitalize(word) {
-  return word[0].toUpperCase() + word.slice(1);
-}
 
 function updateClock(mins, secs, ms) {
   let minutes = Math.floor( (ms/1000/60) % 60 );
