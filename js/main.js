@@ -263,3 +263,39 @@ $('#username-form').submit(e => {
     document.querySelector("#username-placeholder").innerHTML = content;
   });
 })
+
+$('#invite1min').click(() => {
+  invite(1);
+});
+$('#invite3min').click(() => {
+  invite(3);
+});
+$('#invite5min').click(() => {
+  invite(5);
+});
+$('#invite10min').click(() => {
+  invite(10);
+});
+function invite(min) {
+  $loader.addClass("loader")
+  emptyLog()
+  const url = `http://localhost:8000/invite?clock=${min}`;
+  fetch(url, {'credentials': 'include'})
+  .then(response => {
+    if (!response.ok) {
+      $loader.removeClass("loader");
+      appendLog("Could not reach server");
+      return
+    }
+    return response.json();
+  })
+  .then(res => {
+    if (!res.inviteId) {
+      $loader.removeClass("loader");
+      appendLog("Apologies, something went wrong");
+      return
+    }
+    // redirect to wait room
+    document.location.href = `/wait.html?id=${res.inviteId}`;
+  });
+}
