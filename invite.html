@@ -9,14 +9,26 @@
   <!--
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">-->
   <link rel="stylesheet" type="text/css" href="/bootstrap5/bootstrap.min.css">
-
+  <style type="text/css">
+    .h-10 {
+      height: 10%;
+    }
+    .h-90 {
+      height: 90%;
+    }
+  </style>
   <script src="/jquery/jquery-3.5.1.js"></script>
 </head>
 <body>
-  <div class="container">
-    <div class="row">
-      <div class="col h-100vh d-flex justify-content-center align-items-center">
-        <h1 id="msg">Redirecting you to the game...</h1>
+  <div class="container vh-100">
+    <div class="row h-10">
+      <div class="col d-flex align-items-center justify-content-between">
+        <h1 class="ms-4">Play Prince Chess online</h1>
+      </div>
+    </div>
+    <div class="row h-90">
+      <div class="col d-flex justify-content-center align-items-center">
+        <h1 class="text-center" id="msg">Redirecting you to the game...</h1>
       </div>
     </div>
   </div>
@@ -38,19 +50,25 @@
 
   let url = `http://localhost:8000/join?id=${inviteId}&clock=${clock}`;
   fetch(url, {credentials: "include"})
-  .then(response => {
+  .then(async (response) => {
+    let res
     if (!response.ok) {
-      msg.html("Could not reach server");
+      res = await response.text();
+      if (res == "") {
+        msg.html("Could not reach server");
+        return
+      }
+      msg.html(res);
       return
     }
-    return response.json();
-  })
-  .then(res => {
+
+    res = await response.json();
+
     if (!res.roomId) {
-      msg.html("Game not found");
+      msg.html("Something went wrong");
       return
     }
     // redirect to play room
-    document.location.href = `/play.html?id=${res.roomId}&color=${res.color}&clock=${res.min}&opp=${res.opp}`;
-  });
+    document.location.href = `/play.html?id=${res.roomId}&color=${res.color}&clock=${clock}&opp=${res.opp}`;
+  })
 </script>
