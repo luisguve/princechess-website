@@ -279,22 +279,22 @@ function enableInviteButtons() {
 }
 
 $('#invite1min').click(() => {
-  if $("#invite1min").hasClass("disabled") return
+  if ($("#invite1min").hasClass("disabled")) return
   disableInviteButtons()
   invite(1);
 });
 $('#invite3min').click(() => {
-  if $("#invite3min").hasClass("disabled") return
+  if ($("#invite3min").hasClass("disabled")) return
   disableInviteButtons()
   invite(3);
 });
 $('#invite5min').click(() => {
-  if $("#invite5min").hasClass("disabled") return
+  if ($("#invite5min").hasClass("disabled")) return
   disableInviteButtons()
   invite(5);
 });
 $('#invite10min').click(() => {
-  if $("#invite10min").hasClass("disabled") return
+  if ($("#invite10min").hasClass("disabled")) return
   disableInviteButtons()
   invite(10);
 });
@@ -319,6 +319,6 @@ function invite(min) {
       return
     }
     // redirect to wait room
-    document.location.href = `http://localhost:8080/wait.html?id=${res.inviteId}`;
+    document.location.href = `http://localhost:8080/wait.html?id=${res.inviteId}&clock=${min}`;
   });
 }
