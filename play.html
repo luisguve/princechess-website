@@ -55,7 +55,7 @@
     <h2 id="log"></h2>
     <div class="row justify-content-center">
       <div class="col d-xl-none mb-1">
-        <div class="opp-clock d-flex align-items-center justify-content-end pe-3">
+        <div class="d-flex align-items-center justify-content-end">
           <!-- remove class d-none on draw offer and add it on draw accept/decline or piece move -->
           <div class="draw-offer w-75 d-none">
             Opponent offers draw
@@ -68,7 +68,7 @@
             <button class="btn btn-primary accept-rematch">Accept</button>
             <button class="btn btn-secondary decline-rematch">Decline</button>
           </div>
-          <div>
+          <div class="opp-clock px-3">
             <span class="oppmin fs-2">5</span>:<span class="oppsec fs-2">00</span>
             <h5 class="opp-username d-inline-block ms-2 mb-0"></h5>
           </div>
@@ -82,13 +82,13 @@
         </div>
       </div>
       <div class="col d-xl-none mt-1">
-        <div class="my-clock d-flex align-items-center justify-content-between pe-3">
+        <div class="d-flex align-items-center justify-content-between">
           <div class="actions">
             <button class="btn btn-primary disabled draw">Offer draw</button>
             <button class="btn btn-danger disabled resign">Resign</button>
-            <button class="btn btn-info disabled rematch">Rematch</button>
+            <button class="btn btn-info disabled rematch text-light">Rematch</button>
           </div>
-          <div>
+          <div class="my-clock px-3">
             <span class="mymin fs-2">5</span>:<span class="mysec fs-2">00</span>
             <h5 class="my-username d-inline-block ms-2 mb-0"></h5>
           </div>
@@ -107,7 +107,7 @@
         <div class="actions d-none d-xl-block">
           <button class="btn btn-primary disabled draw">Offer draw</button>
           <button class="btn btn-danger disabled resign">Resign</button>
-          <button class="btn btn-info disabled rematch">Rematch</button>
+          <button class="btn btn-info disabled rematch text-light">Rematch</button>
         </div>
       </div>
     </div>
