@@ -23,7 +23,7 @@
   <div class="container vh-100">
     <div class="row h-10">
       <div class="col d-flex align-items-center justify-content-between">
-        <h1 class="ms-4">Play Prince Chess</h1>
+        <h1 class="ms-4">Play Prince Chess online</h1>
         <h2 class="me-4"><a href="/">Home</a></h2>
       </div>
     </div>
@@ -87,7 +87,7 @@
             errorClearScreen("Redirecting you to the game.");
             let res = JSON.parse(evt.reason);
             // redirect to play room
-            document.location.href = `http://localhost:8080/play.html?id=${res.roomId}&color=${res.color}&clock=${res.min}&opp=${res.opp}`;
+            document.location.href = `http://localhost:8080/play.html?id=${res.roomId}&color=${res.color}&clock=${clock}&opp=${res.opp}`;
             break;
           default:
             errorClearScreen("Apologies, something went wrong. Code: " + evt.code);
