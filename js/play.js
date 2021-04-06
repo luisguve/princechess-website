@@ -137,7 +137,7 @@ if (window["WebSocket"]) {
       }
       // if not, see if one of the player ran out of time
       if (data.OOT) {
-        let clockOOT;
+        let clockOOT = {};
         switch (data.OOT) {
         case "MY_CLOCK":
           clockOOT.colorOOT = color;
@@ -595,6 +595,8 @@ function finishGame() {
 function resetGame() {
   emptyLog();
   updateStatus();
+  $oppClock.css("background", "none");
+  $myClock.css("background", "none");
   finished = false;
   sentDrawOffer = false;
   moves = 0;
