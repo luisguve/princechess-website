@@ -9,15 +9,30 @@
   <!--
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">-->
   <link rel="stylesheet" type="text/css" href="/bootstrap5/bootstrap.min.css">
-
+  <style type="text/css">
+    .h-10 {
+      height: 10%;
+    }
+    .h-90 {
+      height: 90%;
+    }
+  </style>
   <script src="/jquery/jquery-3.5.1.js"></script>
 </head>
 <body>
-  <div class="container">
-    <div class="row">
-      <div class="col h-100vh d-flex justify-content-center align-items-center">
-        <h1 id="msg">Use this link: <b id="invite-link"></b></h1>
-        <h2 class="fs-4" id="wait-msg">Waiting for opponent...</h2>
+  <div class="container vh-100">
+    <div class="row h-10">
+      <div class="col d-flex align-items-center justify-content-between">
+        <h1 class="ms-4">Play Prince Chess</h1>
+        <h2 class="me-4"><a href="/">Home</a></h2>
+      </div>
+    </div>
+    <div class="row h-90">
+      <div class="col d-flex flex-column justify-content-center align-items-center">
+        <h1 class="text-center" id="msg">Share the following link with your friend:</h1>
+        <p><b id="invite-link"></b></p>
+        <h2 class="fs-4" id="wait-msg"></h2>
+        <div id="timer"><span class="min fs-2">1</span><span class="fs-2">:</span><span class="sec fs-2">00</span></div>
       </div>
     </div>
   </div>
@@ -28,48 +43,92 @@
   </footer>
   <script type="text/javascript" src="/js/helpers.js"></script>
   <script type="text/javascript">
+    let sec = $('.sec')
+    let min = $('.min')
     let msg = $("#msg")
+    let timer = $("#timer")
     let waitMsg = $("#wait-msg")
     let inviteLink = $("#invite-link")
-    /* Url must be in the format wait.html?id={game_id}&clock={clock} */
-    let inviteId = getUrlParameter("id")
-    let clock = getUrlParameter("clock")
-    if (!inviteId) {
-      msg.html("Invalid invitation link");
-      waitMsg.html("");
-      return
-    }
+    let countdown
+    let init = () => {
+      /* Url must be in the format wait.html?id={game_id}&clock={clock} */
+      let inviteId = getUrlParameter("id")
+      let clock = getUrlParameter("clock")
+      if (!inviteId) {
+        msg.html("Invalid invitation link");
+        errorClearScreen();
+        return
+      }
+      if (!clock) {
+        msg.html("Invalid clock");
+        errorClearScreen();
+        return
+      }
 
-    if (window["WebSocket"]) {
-      conn = new WebSocket(`ws://localhost:8000/wait?id=${inviteId}`);
-      conn.onerror = evt => {
-        msg.html("Could not connect. Game aborted.");
-        waitMsg.html("");
-      };
-      conn.onclose = evt => {
-        switch (evt.code) {
-        case 1006:
-          msg.html("You were disconnected. Game cancelled.");
-          waitMsg.html("");
-          break;
-        case 1000:
-          waitMsg.html("Redirecting you to the game.");
-          break;
-        default:
-          msg.html("Apologies, something went wrong. Code:", evt.code);
+
+      if (window["WebSocket"]) {
+        conn = new WebSocket(`ws://localhost:8000/wait?id=${inviteId}&clock=${clock}`);
+        conn.onopen = () => {
+          inviteLink.html(`http://localhost:8080/invite.html?id=${inviteId}&clock=${clock}`);
+          waitMsg.html("Waiting for opponent...");
+          countdown = setInterval(ticker, 1000);
         }
-      };
-      conn.onmessage = evt => {
-        let res = JSON.parse(evt.data);
-        // redirect to play room
-        document.location.href = `http://localhost:8080/play.html?id=${res.roomId}&color=${res.color}&clock=${res.min}&opp=${res.opp}`;
-      };
-    } else {
-      $("#msg").html("Your browser does not support WebSockets.");
-      return
+        conn.onclose = evt => {
+          switch (evt.code) {
+          case 1006:
+            errorClearScreen("Could not connect. Game aborted");
+            break
+          case 1007:
+          case 1008:
+          case 1013:
+            errorClearScreen(evt.reason);
+            break;
+          case 1000:
+            errorClearScreen("Redirecting you to the game.");
+            let res = JSON.parse(evt.reason);
+            // redirect to play room
+            document.location.href = `http://localhost:8080/play.html?id=${res.roomId}&color=${res.color}&clock=${res.min}&opp=${res.opp}`;
+            break;
+          default:
+            errorClearScreen("Apologies, something went wrong. Code: " + evt.code);
+          }
+          clearInterval(countdown);
+        };
+      } else {
+        $("#msg").html("Your browser does not support WebSockets.");
+        return
+      }
     }
-
-    inviteLink.html(`http://localhost:8080/invite.html?id=${inviteId}&clock=${clock}`);
+    init()
+    // Clear specific parts of the document on errors
+    function errorClearScreen(content) {
+      inviteLink.html("");
+      waitMsg.html("");
+      timer.html("");
+      msg.html(content);
+    }
+    function ticker() {
+      let secsLeft = sec.html()
+      let minsLeft = min.html()
+      if (secsLeft >= 11) {
+        sec.html(secsLeft - 1);
+        return;
+      }
+      if (secsLeft >= 1) {
+        secsLeft--;
+        sec.html(`0${secsLeft}`);
+        return;
+      }
+      if (secsLeft == 0 && minsLeft >= 1){
+        secsLeft = 59;
+        minsLeft--;
+        sec.html(secsLeft);
+        min.html(minsLeft);
+        return;
+      }
+      // Time is out
+      clearInterval(interval);
+    }
   </script>
 </body>
 </html>
