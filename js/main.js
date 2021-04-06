@@ -264,16 +264,38 @@ $('#username-form').submit(e => {
   });
 })
 
+function disableInviteButtons() {
+  $("#invite1min").addClass("disabled")
+  $("#invite3min").addClass("disabled")
+  $("#invite5min").addClass("disabled")
+  $("#invite10min").addClass("disabled")
+}
+
+function enableInviteButtons() {
+  $("#invite1min").removeClass("disabled")
+  $("#invite3min").removeClass("disabled")
+  $("#invite5min").removeClass("disabled")
+  $("#invite10min").removeClass("disabled")
+}
+
 $('#invite1min').click(() => {
+  if $("#invite1min").hasClass("disabled") return
+  disableInviteButtons()
   invite(1);
 });
 $('#invite3min').click(() => {
+  if $("#invite3min").hasClass("disabled") return
+  disableInviteButtons()
   invite(3);
 });
 $('#invite5min').click(() => {
+  if $("#invite5min").hasClass("disabled") return
+  disableInviteButtons()
   invite(5);
 });
 $('#invite10min').click(() => {
+  if $("#invite10min").hasClass("disabled") return
+  disableInviteButtons()
   invite(10);
 });
 function invite(min) {
@@ -290,12 +312,13 @@ function invite(min) {
     return response.json();
   })
   .then(res => {
+    enableInviteButtons()
     if (!res.inviteId) {
       $loader.removeClass("loader");
       appendLog("Apologies, something went wrong");
       return
     }
     // redirect to wait room
-    document.location.href = `/wait.html?id=${res.inviteId}`;
+    document.location.href = `http://localhost:8080/wait.html?id=${res.inviteId}`;
   });
 }

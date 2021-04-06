@@ -31,8 +31,9 @@
     let msg = $("#msg")
     let waitMsg = $("#wait-msg")
     let inviteLink = $("#invite-link")
-    /* Url must be in the format wait.html?id={game_id} */
+    /* Url must be in the format wait.html?id={game_id}&clock={clock} */
     let inviteId = getUrlParameter("id")
+    let clock = getUrlParameter("clock")
     if (!inviteId) {
       msg.html("Invalid invitation link");
       waitMsg.html("");
@@ -68,7 +69,7 @@
       return
     }
 
-    inviteLink.html(`http://localhost:8080/invite.html?id=${inviteId}`);
+    inviteLink.html(`http://localhost:8080/invite.html?id=${inviteId}&clock=${clock}`);
   </script>
 </body>
 </html>

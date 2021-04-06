@@ -31,12 +31,13 @@
 
 <!-- invitation.js -->
 <script type="text/javascript">
-  /* Url must be in the format invite.html?id={game_id} */
+  /* Url must be in the format invite.html?id={game_id}&clock={clock} */
   var msg = $("#msg");
   let inviteId = getUrlParameter("id")
+  let clock = getUrlParameter("clock")
 
-  let url = `http://localhost:8000/invite?id=${inviteId}`;
-  fetch(url)
+  let url = `http://localhost:8000/join?id=${inviteId}&clock=${clock}`;
+  fetch(url, {credentials: "include"})
   .then(response => {
     if (!response.ok) {
       msg.html("Could not reach server");
