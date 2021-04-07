@@ -322,3 +322,29 @@ function invite(min) {
     document.location.href = `http://localhost:8080/wait.html?id=${res.inviteId}&clock=${min}`;
   });
 }
+
+// Get information in real-time
+if (window["WebSocket"]) {
+  let numPlayers = $("#num-players");
+  let numGames = $("#num-games");
+  let conn = new WebSocket(`ws://localhost:8000/livedata`);
+  conn.onclose = evt => {
+    switch (evt.code) {
+    case 1006:
+      appendLog("Could not connect.");
+      break
+    case 1000:
+      appendLog("Connection closed.");
+      break;
+    default:
+      appendLog("Apologies, something went wrong. Code: " + evt.code);
+    }
+  };
+  conn.onmessage = evt => {
+    let data = JSON.parse(evt.data);
+    numPlayers.html(data.players);
+    numGames.html(data.games);
+  }
+} else {
+  appendLog("Your browser does not support WebSockets.");
+}

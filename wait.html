@@ -67,7 +67,7 @@
 
 
       if (window["WebSocket"]) {
-        conn = new WebSocket(`ws://localhost:8000/wait?id=${inviteId}&clock=${clock}`);
+        let conn = new WebSocket(`ws://localhost:8000/wait?id=${inviteId}&clock=${clock}`);
         conn.onopen = () => {
           inviteLink.html(`http://localhost:8080/invite.html?id=${inviteId}&clock=${clock}`);
           waitMsg.html("Waiting for opponent...");
