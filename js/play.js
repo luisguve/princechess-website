@@ -7,11 +7,14 @@ var $status = $('#status')
 var $fen = $('#fen')
 var $pgn = $('#pgn')
 var finished = false
+var oppReady = false
+var connReady = false
 var gameId = getUrlParameter("id")
 var color = getUrlParameter("color")
 var oppColor = (color === "white") ? "black" : "white";
 var clock = getUrlParameter("clock")
 var opp = getUrlParameter("opp")
+var me
 var $oppclock = $('.opp-clock')
 var $myclock = $('.my-clock')
 var $oppsec = $('.oppsec')
@@ -26,7 +29,7 @@ var myInterval
 var oppInterval
 
 var $log = $("#log")
-var $loader = $log
+var $loader = $("#loader")
 
 var drawOffer = $(".draw-offer");
 var acceptDrawButtons = $("button.accept-draw");
@@ -51,32 +54,45 @@ function updateClock(mins, secs, ms) {
   if (seconds == 0) {
     seconds = "00";
   }
+  if (seconds > 1 && seconds < 10) {
+    seconds = "0" + seconds;
+  }
   mins.html(minutes);
   secs.html(seconds);
 }
 
 if (window["WebSocket"]) {
-  conn = new WebSocket(`ws://localhost:8000/game?id=${gameId}&clock=${clock}`);
+  const url = `ws://localhost:8000/game?id=${gameId}&clock=${clock}`;
+  conn = new ReconnectingWebSocket(url);
   conn.onerror = evt => {
-    // appendLog("Could not connect.");
+    updateStatus({msg:"Game not found"});
+    finishRoom();
   };
+  conn.onopen = evt => {
+    clearLog();
+    $loader.removeClass("loader");
+    connReady = true;
+  }
   conn.onclose = evt => {
     switch (evt.code) {
     case 1006:
       appendLog("Game not found");
+      finishRoom()
       break;
     case 1001:
+      clearLog();
       if (finished) {
         appendLog(`Opponent left the room.`);
       } else {
         appendLog(`Game over: opponent left. ${capitalize(color)} wins`);
       }
+      finishRoom();
       break;
     case 1000:
-      appendLog("Connection closed.");
+      appendLog("Connection lost. Trying to reconnect");
+      $loader.addClass("loader");
       break;
     }
-    finishGame()
   };
   conn.onmessage = evt => {
     let data = JSON.parse(evt.data);
@@ -92,6 +108,53 @@ if (window["WebSocket"]) {
           appendChat(item);
       }
       return
+    }
+
+    if (data.pgn) {
+      // Update the engine
+      game.load_pgn(data.pgn);
+      // Update the board
+      board.position(game.fen());
+      updateStatus();
+      return;
+    }
+
+    if (data.waitingOpp) {
+      if (finished) {
+        if (connReady) {
+          let signalFinishRoom = JSON.stringify({
+            finishRoom: true
+          });
+          conn.send(signalFinishRoom);
+          finishRoom();
+        }
+        clearLog();
+        updateStatus({msg: "Opponent left the room"});
+        return
+      }
+      $loader.addClass("loader");
+      appendLog("Waiting for opponent");
+      return;
+    }
+
+    if (data.oppGone) {
+      clearLog();
+      let data = {};
+      if (moves > 2) {
+        data.msg = `Game over: opponent left. ${capitalize(color)} wins`;
+      } else {
+        data.msg = "Opponent left the room"
+      }
+      updateStatus(data);
+      finishRoom();
+      return;
+    }
+
+    if (data.oppReady) {
+      oppReady = true;
+      clearLog();
+      $loader.removeClass("loader");
+      return;
     }
 
     if (data.oppResigned) {
@@ -129,7 +192,7 @@ if (window["WebSocket"]) {
       if (data.oppClock) {
         // if both players have done their first move,
         // reset opponent's clock
-        if (moves >= 2) {
+        if (game.history().length >= 2) {
           updateClock($oppmin, $oppsec, data.oppClock);
           updateClock($mymin, $mysec, data.clock);
         }
@@ -163,7 +226,7 @@ if (window["WebSocket"]) {
     moves++;
     // if both players have done their first move,
     // stop opponent's clock and start my clock
-    if (moves >= 2) {
+    if (game.history().length >= 2) {
       startMyClock();
       // then reset opponent's clock
       updateClock($oppmin, $oppsec, data.oppClock);
@@ -180,8 +243,9 @@ if (window["WebSocket"]) {
 fetch("http://localhost:8000/username", {credentials: "include"})
 .then(res => res.text())
 .then(username => {
-  username = username ? username : "You"
-  $(".my-username").html(username)
+  username = username ? username : "You";
+  me = username;
+  $(".my-username").html(username);
 });
 
 let oppUsername = document.querySelectorAll(".opp-username")
@@ -195,7 +259,7 @@ function appendLog(content) {
   log.appendChild(item);
 }
 
-function emptyLog() {
+function clearLog() {
   while (log.firstChild) {
     log.firstChild.remove()
   }
@@ -235,7 +299,7 @@ $('#10min').click(() => {
 
 function play(min) {
   $loader.addClass("loader");
-  emptyLog();
+  clearLog();
   const url = `http://localhost:8000/play?clock=${min}`;
   fetch(url, {'credentials': 'include'})
   .then(response => {
@@ -283,7 +347,7 @@ function onDrop (source, target) {
   // illegal move
   if (move === null) return 'snapback'
 
-  if (!conn) {
+  if (!connReady) {
     return 'snapback';
   }
 
@@ -292,7 +356,8 @@ function onDrop (source, target) {
       from: source,
       to: target,
       color: move.color,
-      promotion: 'q'
+      promotion: 'q',
+      pgn: game.pgn()
     }
   }));
 
@@ -300,7 +365,7 @@ function onDrop (source, target) {
 
   // if both players have done their first move,
   // stop my clock and start opponent's clock
-  if (moves >= 2) {
+  if (game.history().length >= 2) {
     startOppClock();
   }
 
@@ -349,6 +414,10 @@ function updateStatus(data) {
     else if (data.draw) {
       status = 'Game over, draw offer accepted'
     }
+    // custom message?
+    else if (data.msg) {
+      status = data.msg
+    }
   }
   // checkmate?
   else if (game.in_checkmate()) {
@@ -382,7 +451,7 @@ function updateStatus(data) {
   }
 
   if (game.game_over()) {
-    finishGame();
+    finishGame(true);
   }
 
   $status.html(status)
@@ -494,11 +563,18 @@ var chatLog = $("#chat-log");
 
 $("#chat-form").submit(e => {
   e.preventDefault();
-  if (!conn) {
-      return;
-  }
   if (!chatMsg.val()) {
-      return;
+    return;
+  }
+  if (!connReady) {
+    let item = document.createElement("p");
+    let from = document.createElement("b");
+    from.innerText = me + ": ";
+    item.appendChild(from);
+    item.appendChild(document.createTextNode(chatMsg.val()));
+    appendChat(item);
+    chatMsg.val("");
+    return;
   }
   let msg = JSON.stringify({
     chat: chatMsg.val(),
@@ -533,7 +609,7 @@ acceptDrawButtons.click(e => {
     acceptDraw: true
   });
   conn.send(action);
-  finishGame();
+  finishGame(true);
   updateStatus({draw: true});
 });
 
@@ -547,7 +623,7 @@ resignButtons.click(e => {
     resign: true
   });
   conn.send(action);
-  finishGame();
+  finishGame(true);
   updateStatus({resigned: color});
 });
 
@@ -574,12 +650,13 @@ declineRematchButtons.click(e => {
   rematchOffer.addClass("d-none");
 });
 
-function finishGame() {
+function finishGame(signal) {
+  $loader.removeClass("loader");
   stopClocks();
-  let signalGameOver = JSON.stringify({
-    gameOver: true,
-  });
-  if (conn) {
+  if (signal && connReady) {
+    let signalGameOver = JSON.stringify({
+      gameOver: true
+    });
     conn.send(signalGameOver);
   }
   finished = true;
@@ -592,13 +669,31 @@ function finishGame() {
   rematchButtons.removeClass("disabled")
 }
 
+// Similar to finishGame, but rematch buttons are disabled
+// and the connection is closed
+function finishRoom() {
+  $loader.removeClass("loader");
+  stopClocks();
+  finished = true;
+  drawDisabled = true
+  drawButtons.addClass("disabled")
+  resignDisabled = true
+  resignButtons.addClass("disabled")
+  drawOffer.addClass("d-none")
+  rematchDisabled = true
+  rematchButtons.addClass("disabled")
+  conn.close()
+  connReady = false;
+}
+
 function resetGame() {
-  emptyLog();
-  updateStatus();
-  $oppClock.css("background", "none");
-  $myClock.css("background", "none");
+  clearLog();
+  $oppclock.css("background", "none");
+  $myclock.css("background", "none");
   finished = false;
   sentDrawOffer = false;
+  rematchDisabled = true;
+  rematchButtons.addClass("disabled");
   moves = 0;
   color = color == "white" ? "black" : "white";
   board.start();
@@ -608,4 +703,9 @@ function resetGame() {
   $oppsec.html("00");
   $mymin.html(clock);
   $mysec.html("00");
+  updateStatus();
+
+  let newUrl = `/play.html?id=${gameId}&color=${color}&clock=${clock}&opp=${opp}`;
+
+  window.history.replaceState(null, null, newUrl);
 }
