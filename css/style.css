@@ -63,6 +63,7 @@ main li {
   width: 20px;
   height: 20px;
   animation: spin 2s linear infinite;
+  margin-right: 5px;
 }
 
 @keyframes spin {
