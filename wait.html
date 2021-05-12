@@ -16,6 +16,17 @@
     .h-90 {
       height: 90%;
     }
+    .invite-link {
+      width: 95%;
+    }
+    .invite-link input, .invite-link button {
+      padding: 3px 5px;
+    }
+    @media screen and (min-width: 768px) {
+      .invite-link {
+        width: 75%;
+      }
+    }
   </style>
   <script src="/jquery/jquery-3.5.1.js"></script>
 </head>
@@ -30,7 +41,10 @@
     <div class="row h-90">
       <div class="col d-flex flex-column justify-content-center align-items-center">
         <h1 class="text-center" id="msg">Share the following link with your friend:</h1>
-        <p><b id="invite-link"></b></p>
+        <div class="d-flex invite-link my-3">
+          <input type="text" value="" readonly id="invite-link" class="fw-bold w-75 me-2">
+          <button onclick="copyLink()" class="w-25 btn btn-primary" id="copy-button">Copy link</button>
+        </div>
         <h2 class="fs-4" id="wait-msg"></h2>
         <div id="timer"><span class="min fs-2">1</span><span class="fs-2">:</span><span class="sec fs-2">00</span></div>
       </div>
@@ -49,7 +63,9 @@
     let timer = $("#timer")
     let waitMsg = $("#wait-msg")
     let inviteLink = $("#invite-link")
+    let copyButton = $("#copy-button")
     let countdown
+    let disableCopy = false
     let init = () => {
       /* Url must be in the format wait.html?id={game_id}&clock={clock} */
       let inviteId = getUrlParameter("id")
@@ -65,11 +81,10 @@
         return
       }
 
-
       if (window["WebSocket"]) {
         let conn = new WebSocket(`ws://localhost:8000/wait?id=${inviteId}&clock=${clock}`);
         conn.onopen = () => {
-          inviteLink.html(`http://localhost:8080/invite.html?id=${inviteId}&clock=${clock}`);
+          inviteLink.val(`http://localhost:8080/invite.html?id=${inviteId}&clock=${clock}`);
           waitMsg.html("Waiting for opponent...");
           countdown = setInterval(ticker, 1000);
         }
@@ -106,6 +121,10 @@
       waitMsg.html("");
       timer.html("");
       msg.html(content);
+      // Disable copy button and input
+      copyButton.addClass("disabled");
+      inviteLink.attr("disabled", true);
+      disableCopy = true;
     }
     function ticker() {
       let secsLeft = sec.html()
@@ -129,6 +148,25 @@
       // Time is out
       clearInterval(interval);
     }
+
+    function copyLink() {
+      if (disableCopy) {
+        return;
+      }
+      /* Get the text field */
+      var copyText = document.getElementById("invite-link");
+
+      /* Select the text field */
+      copyText.select();
+      copyText.setSelectionRange(0, 99999); /* For mobile devices */
+
+      /* Copy the text inside the text field */
+      document.execCommand("copy");
+
+      /* Alert the copied text */
+      copyButton.html("Copied!");
+    }
+    copyButton.mouseleave(function(e) { $(e.target).html("Copy link"); });
   </script>
 </body>
 </html>
