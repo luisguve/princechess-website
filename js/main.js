@@ -259,7 +259,7 @@ $('#username-form').submit(e => {
     }
   })
   .then(() => {
-    let content = `<h3 class="bg-primary">Hello, ${username}</h3`
+    let content = `<h3 class="username p-2">Hello, <em><b>${username}</b></em></h3`
     document.querySelector("#username-placeholder").innerHTML = content;
   });
 })
