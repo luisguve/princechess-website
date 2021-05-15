@@ -29,7 +29,7 @@ function getBaseUrl() {
   if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
     return "http://localhost:8080";
   }
-  return "https://princechess.herokuapp.com"
+  return "https://princechess.netlify.app"
 }
 
 function getHostname() {
