@@ -48,6 +48,9 @@ var rematchOffer = $(".rematch-offer")
 var acceptRematchButtons = $("button.accept-rematch")
 var declineRematchButtons = $("button.decline-rematch")
 
+const srvBaseUrl = getSrvBaseUrl()
+const hostname = getHostname()
+
 function updateClock(mins, secs, ms) {
   let minutes = Math.floor( (ms/1000/60) % 60 );
   let seconds = Math.floor( (ms/1000) % 60 );
@@ -62,7 +65,7 @@ function updateClock(mins, secs, ms) {
 }
 
 if (window["WebSocket"]) {
-  const url = `ws://localhost:8000/game?id=${gameId}&clock=${clock}`;
+  const url = `ws://${hostname}/game?id=${gameId}&clock=${clock}`;
   conn = new ReconnectingWebSocket(url);
   conn.onerror = evt => {
     updateStatus({msg:"Game not found"});
@@ -240,7 +243,7 @@ if (window["WebSocket"]) {
   alert("Your browser does not support WebSockets.");
 }
 
-fetch("http://localhost:8000/username", {credentials: "include"})
+fetch(`${srvBaseUrl}/username`, {credentials: "include"})
 .then(res => res.text())
 .then(username => {
   username = username ? username : "You";
@@ -300,7 +303,7 @@ $('#10min').click(() => {
 function play(min) {
   $loader.addClass("loader");
   clearLog();
-  const url = `http://localhost:8000/play?clock=${min}`;
+  const url = `${srvBaseUrl}/play?clock=${min}`;
   fetch(url, {'credentials': 'include'})
   .then(response => {
     if (!response.ok) {

@@ -6,9 +6,9 @@
   <meta name="description" content="Play and learn how to play Prince Chess, a chess variant that includes two new pieces called princes, and a new way to win the game">
   <meta name="robots" content="index, follow">
   <meta charset="UTF-8">
-  <!--
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">-->
-  <link rel="stylesheet" type="text/css" href="/bootstrap5/bootstrap.min.css">
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+  <!--<link rel="stylesheet" type="text/css" href="/bootstrap5/bootstrap.min.css">-->
   <style type="text/css">
     .h-10 {
       height: 10%;
@@ -38,37 +38,40 @@
     <h6 class="text-center">&copy; All rights reserved</h6>
   </footer>
   <script type="text/javascript" src="/js/helpers.js"></script>
+
+  <!-- send invitation id, receive room id & redirect -->
+  <script type="text/javascript">
+    /* Url must be in the format invite.html?id={game_id}&clock={clock} */
+    var msg = $("#msg");
+    let inviteId = getUrlParameter("id")
+    let clock = getUrlParameter("clock")
+    
+    let srvBaseUrl = getSrvBaseUrl()
+
+    let url = `${srvBaseUrl}/join?id=${inviteId}&clock=${clock}`;
+    fetch(url, {credentials: "include"})
+    .then(async (response) => {
+      let res
+      if (!response.ok) {
+        res = await response.text();
+        if (res == "") {
+          msg.html("Could not reach server");
+          return
+        }
+        msg.html(res);
+        return
+      }
+
+      res = await response.json();
+
+      if (!res.roomId) {
+        msg.html("Something went wrong");
+        return
+      }
+      // redirect to play room
+      document.location.href = `/play.html?id=${res.roomId}&color=${res.color}&clock=${clock}&opp=${res.opp}`;
+    })
+  </script>
 </body>
 </html>
 
-<!-- invitation.js -->
-<script type="text/javascript">
-  /* Url must be in the format invite.html?id={game_id}&clock={clock} */
-  var msg = $("#msg");
-  let inviteId = getUrlParameter("id")
-  let clock = getUrlParameter("clock")
-
-  let url = `http://localhost:8000/join?id=${inviteId}&clock=${clock}`;
-  fetch(url, {credentials: "include"})
-  .then(async (response) => {
-    let res
-    if (!response.ok) {
-      res = await response.text();
-      if (res == "") {
-        msg.html("Could not reach server");
-        return
-      }
-      msg.html(res);
-      return
-    }
-
-    res = await response.json();
-
-    if (!res.roomId) {
-      msg.html("Something went wrong");
-      return
-    }
-    // redirect to play room
-    document.location.href = `/play.html?id=${res.roomId}&color=${res.color}&clock=${clock}&opp=${res.opp}`;
-  })
-</script>

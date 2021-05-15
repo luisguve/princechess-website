@@ -17,3 +17,24 @@ function getUrlParameter(sParam) {
 function capitalize(word) {
   return word[0].toUpperCase() + word.slice(1);
 }
+
+function getSrvBaseUrl() {
+  if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+    return "http://localhost:8000";
+  }
+  return "https://princechess.herokuapp.com"
+}
+
+function getBaseUrl() {
+  if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+    return "http://localhost:8080";
+  }
+  return "https://princechess.herokuapp.com"
+}
+
+function getHostname() {
+  if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+    return "localhost:8000";
+  }
+  return "princechess.herokuapp.com"
+}

@@ -13,6 +13,9 @@ var $loader = $('#loader')
 
 var $log = $("#log");
 
+const srvBaseUrl = getSrvBaseUrl();
+const hostname = getHostname();
+
 $start.click(restart);
 
 $strength.html(`Strength (${level})`);
@@ -55,7 +58,7 @@ $('#10min').click(() => {
 function play(min) {
   $loader.addClass("loader")
   emptyLog()
-  const url = `http://localhost:8000/play?clock=${min}`;
+  const url = `${srvBaseUrl}/play?clock=${min}`;
   fetch(url, {'credentials': 'include'})
   .then(response => {
     if (!response.ok) {
@@ -226,7 +229,7 @@ board = Chessboard('board', config)
 
 updateStatus()
 
-fetch("http://localhost:8000/username", {credentials: "include"})
+fetch(`${srvBaseUrl}/username`, {credentials: "include"})
 .then(res => res.text())
 .then(username => {
   if (username) {
@@ -245,7 +248,7 @@ $('#username-form').submit(e => {
   let data = new FormData(document.querySelector("#username-form"))
 
   // Make the request
-  let url = 'http://localhost:8000/username';
+  let url = `${srvBaseUrl}/username`;
   let fetchOptions = {
     method: 'POST',
     credentials: "include",
@@ -301,7 +304,7 @@ $('#invite10min').click(() => {
 function invite(min) {
   $loader.addClass("loader")
   emptyLog()
-  const url = `http://localhost:8000/invite?clock=${min}`;
+  const url = `${srvBaseUrl}/invite?clock=${min}`;
   fetch(url, {'credentials': 'include'})
   .then(response => {
     if (!response.ok) {
@@ -319,7 +322,7 @@ function invite(min) {
       return
     }
     // redirect to wait room
-    document.location.href = `http://localhost:8080/wait.html?id=${res.inviteId}&clock=${min}`;
+    document.location.href = `/wait.html?id=${res.inviteId}&clock=${min}`;
   });
 }
 
@@ -327,7 +330,7 @@ function invite(min) {
 if (window["WebSocket"]) {
   let numPlayers = $("#num-players");
   let numGames = $("#num-games");
-  let conn = new WebSocket(`ws://localhost:8000/livedata`);
+  let conn = new WebSocket(`ws://${hostname}/livedata`);
   conn.onclose = evt => {
     switch (evt.code) {
     case 1006:
