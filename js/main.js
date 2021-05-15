@@ -14,7 +14,7 @@ var $loader = $('#loader')
 var $log = $("#log");
 
 const srvBaseUrl = getSrvBaseUrl();
-const hostname = getHostname();
+const socketUrl = getSocketUrl();
 
 $start.click(restart);
 
@@ -330,7 +330,7 @@ function invite(min) {
 if (window["WebSocket"]) {
   let numPlayers = $("#num-players");
   let numGames = $("#num-games");
-  let conn = new WebSocket(`ws://${hostname}/livedata`);
+  let conn = new WebSocket(`${socketUrl}/livedata`);
   conn.onclose = evt => {
     switch (evt.code) {
     case 1006:

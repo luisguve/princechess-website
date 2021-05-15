@@ -38,3 +38,10 @@ function getHostname() {
   }
   return "princechess.herokuapp.com"
 }
+
+function getSocketUrl() {
+  if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+    return "ws://localhost:8000";
+  }
+  return "wss://princechess.herokuapp.com"
+}

@@ -49,7 +49,7 @@ var acceptRematchButtons = $("button.accept-rematch")
 var declineRematchButtons = $("button.decline-rematch")
 
 const srvBaseUrl = getSrvBaseUrl()
-const hostname = getHostname()
+const socketUrl = getSocketUrl()
 
 function updateClock(mins, secs, ms) {
   let minutes = Math.floor( (ms/1000/60) % 60 );
@@ -65,7 +65,7 @@ function updateClock(mins, secs, ms) {
 }
 
 if (window["WebSocket"]) {
-  const url = `ws://${hostname}/game?id=${gameId}&clock=${clock}`;
+  const url = `${socketUrl}/game?id=${gameId}&clock=${clock}`;
   conn = new ReconnectingWebSocket(url);
   conn.onerror = evt => {
     updateStatus({msg:"Game not found"});

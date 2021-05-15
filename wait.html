@@ -69,7 +69,7 @@
     let countdown
     let disableCopy = false
     const baseUrl = getBaseUrl()
-    const hostname = getHostname()
+    const socketUrl = getSocketUrl()
 
     const init = () => {
       /* Url must be in the format wait.html?id={game_id}&clock={clock} */
@@ -87,7 +87,7 @@
       }
 
       if (window["WebSocket"]) {
-        let conn = new WebSocket(`ws://${hostname}/wait?id=${inviteId}&clock=${clock}`);
+        let conn = new WebSocket(`${socketUrl}/wait?id=${inviteId}&clock=${clock}`);
         conn.onopen = () => {
           inviteLink.val(`${baseUrl}/invite.html?id=${inviteId}&clock=${clock}`);
           waitMsg.html("Waiting for opponent...");
