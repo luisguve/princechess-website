@@ -149,5 +149,15 @@
   <!--<script src="/bootstrap5/bootstrap.bundle.min.js"></script>-->
   <script type="text/javascript" src="js/helpers.js"></script>
   <script type="text/javascript" src="js/main.js"></script>
+  <!-- Toast notifications library -->
+  <script src="https://cdn.jsdelivr.net/npm/@zerodevx/svelte-toast@0"></script>
+  <script type="text/javascript">
+    const toastApp = new SvelteToast({target: document.body});
+
+    toast.push(`Note: this site uses cookies for proper functioning. If you get any error within the site, it is likely an issue with cookies. Please make sure to enable all of them in your browser settings`, {
+      initial: 0,
+      progress: 0
+    });
+  </script>
 </body>
 </html>
