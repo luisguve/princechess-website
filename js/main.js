@@ -226,6 +226,9 @@ var config = {
   onDragStart
 }
 board = Chessboard('board', config)
+$('#board').on('scroll touchmove touchend touchstart contextmenu', function(e){
+  e.preventDefault();
+});
 
 updateStatus()
 
